@@ -10,13 +10,14 @@ import altair as alt
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
-st.set_page_config(page_title="CSP 訂單儀表板", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Weblink M365 續約精準行銷｜企業儀表板", page_icon="📊", layout="wide")
 
 # ---------------------------
 # 常數設定
 # ---------------------------
-#DEFAULT_XLSX_PATH = r"D:\DeskT\Austin 自動化\新增資料夾 (2)\CSP訂單資料_raw.xlsx"
-DEFAULT_XLSX_PATH = "CSP訂單資料_raw.xlsx"
+DEFAULT_XLSX_PATH = r"D:\DeskT\Austin 自動化\新增資料夾 (2)\CSP訂單資料_raw.xlsx"
+
+#DEFAULT_XLSX_PATH = "CSP訂單資料_raw.xlsx"
 
 DROP_ORDER_STATUS = {"下單異常", "已取消", "已退貨"}
 
@@ -57,6 +58,14 @@ BROWN_COLOR = "#8B4513"  # saddlebrown
 
 # ✅ 12-B 今年度分組明細表標題紫色
 PURPLE_COLOR = "#6A0DAD"
+
+WARNING_SPECS = [
+    (15, "🔴", "#D32F2F"),
+    (30, "🟠", "#F57C00"),
+    (45, "🟡", "#C9A227"),
+    (60, "🔵", "#1976D2"),
+    (90, "🟣", "#7B1FA2"),
+]
 
 
 # ---------------------------
@@ -239,6 +248,188 @@ def format_signed_money(v: float) -> str:
     return f"{sign}{abs(fv):,.0f}"
 
 
+def get_group_warning_meta(min_expiry_dt) -> tuple[str, str, int | None]:
+    """依距今最近到期日回傳（顯示文字, 顏色, 門檻天數）。"""
+    if min_expiry_dt is None or pd.isna(min_expiry_dt):
+        return "", "", None
+
+    try:
+        min_dt = pd.to_datetime(min_expiry_dt)
+    except Exception:
+        return "", "", None
+
+    days_left = (min_dt.date() - date.today()).days
+    if days_left < 0:
+        return "🔴 已到期", "#D32F2F", 0
+
+    for threshold, symbol, color in WARNING_SPECS:
+        if days_left <= threshold:
+            return f"{symbol} {threshold}", color, threshold
+
+    return "", "", None
+
+
+def build_group_renewal_lookup(df_next: pd.DataFrame | None) -> dict:
+    """
+    建立明年度續約資訊查詢表：
+    key = (最終客戶, 訂閱到期日年度)
+    value = {"amount": 明年度訂閱總金額, "count": 筆數}
+    """
+    if df_next is None or df_next.empty:
+        return {}
+
+    required_cols = {"最終客戶", EXPIRY_YEAR_COL, ANALYSIS_VALUE_COL}
+    if not required_cols.issubset(set(df_next.columns)):
+        return {}
+
+    d = df_next[["最終客戶", EXPIRY_YEAR_COL, ANALYSIS_VALUE_COL]].copy()
+    d[ANALYSIS_VALUE_COL] = pd.to_numeric(d[ANALYSIS_VALUE_COL], errors="coerce").fillna(0)
+
+    grouped = (
+        d.groupby(["最終客戶", EXPIRY_YEAR_COL], dropna=False)
+        .agg(
+            明年度訂閱總金額=(ANALYSIS_VALUE_COL, "sum"),
+            筆數=(ANALYSIS_VALUE_COL, "size"),
+        )
+        .reset_index()
+    )
+
+    lookup: dict = {}
+    for _, row in grouped.iterrows():
+        cust = str(row.get("最終客戶", "") or "")
+        yr = row.get(EXPIRY_YEAR_COL, pd.NA)
+
+        try:
+            yr_key = int(float(yr))
+        except Exception:
+            yr_key = str(yr)
+
+        lookup[(cust, yr_key)] = {
+            "amount": float(row.get("明年度訂閱總金額", 0) or 0),
+            "count": int(row.get("筆數", 0) or 0),
+        }
+
+    return lookup
+
+
+def get_group_warning_meta_with_renewal(
+    min_expiry_dt,
+    current_total: float,
+    customer,
+    expiry_year,
+    renewal_lookup: dict | None = None,
+) -> tuple[str, str, int | None]:
+    """
+    今年度分組明細表警示邏輯：
+    1. 若明年度已有續約資訊，優先顯示「已續約」
+       - 明年度金額 <= 今年度：綠色
+       - 明年度金額 > 今年度：紅色
+    2. 若無明年度續約資訊，沿用原本 15/30/45/60/90 與已到期邏輯
+    """
+    renewal_lookup = renewal_lookup or {}
+    cust_key = str(customer or "")
+
+    yr_key_candidates = []
+    try:
+        yr_int = int(float(expiry_year))
+        yr_key_candidates.append(yr_int + 1)
+    except Exception:
+        pass
+
+    if expiry_year is not None and not pd.isna(expiry_year):
+        yr_key_candidates.append(str(expiry_year))
+
+    for next_year_key in yr_key_candidates:
+        renewal_info = renewal_lookup.get((cust_key, next_year_key))
+        if renewal_info and int(renewal_info.get("count", 0) or 0) > 0:
+            next_amount = float(renewal_info.get("amount", 0) or 0)
+            if next_amount > float(current_total or 0):
+                return "已續約", "#D32F2F", None
+            return "已續約", "#2E7D32", None
+
+    return get_group_warning_meta(min_expiry_dt)
+
+
+def build_warning_style_map(values: pd.Series | list) -> dict:
+    """給 Styler 套 cell 顏色。"""
+    items = pd.Series(values).fillna("").astype(str).tolist()
+    style_map = {}
+    for v in items:
+        vv = v.strip()
+        if not vv:
+            continue
+        if vv in {"已續約", "🟢 已續約", "🔴 已續約"}:
+            # 已續約顏色需由隱藏欄 _warning_color 決定，這裡先不寫死。
+            style_map[v] = "font-weight:700;"
+            continue
+        if "已到期" in vv:
+            style_map[v] = "color:#D32F2F; font-weight:700;"
+            continue
+        for threshold, symbol, color in WARNING_SPECS:
+            if vv.startswith(symbol) or vv.endswith(str(threshold)) or f" {threshold}" in vv:
+                style_map[v] = f"color:{color}; font-weight:700;"
+                break
+    return style_map
+
+
+def format_warning_display_text(warning_text, warning_color="", warning_threshold=None) -> str:
+    """將未續約示警轉為適合 data_editor 顯示的圖示文字。"""
+    if pd.isna(warning_text) or str(warning_text).strip() == "":
+        return ""
+
+    text_val = str(warning_text).strip()
+    color_val = "" if pd.isna(warning_color) else str(warning_color).strip().lower()
+
+    if text_val == "已續約":
+        if color_val == "#2e7d32":
+            return "🟢 已續約"
+        if color_val == "#d32f2f":
+            return "🔴 已續約"
+        return "✅ 已續約"
+
+    if "已到期" in text_val:
+        return "🔴 已到期"
+
+    if warning_threshold is not None and not pd.isna(warning_threshold):
+        try:
+            th = int(float(warning_threshold))
+            icon_map = {15: "🟡", 30: "🟠", 45: "🟣", 60: "🟤", 90: "⚫"}
+            return f"{icon_map.get(th, '🟨')} {th}天"
+        except Exception:
+            pass
+
+    return text_val
+
+
+def init_filter_defaults_from_data(df: pd.DataFrame):
+    """依資料初始化日期預設值：
+    - 訂單下單日（起）= 前一年 1/1
+    - 訂單下單日（迄）= 匯入資料最後一日
+    - 訂閱到期日維持本年度 1/1~12/31
+    僅在 session_state 尚未存在時初始化，避免覆蓋使用者操作。
+    """
+    today_d = date.today()
+    expiry_default_from = date(today_d.year, 1, 1)
+    expiry_default_to = date(today_d.year, 12, 31)
+
+    order_max = None
+    if df is not None and not df.empty and "訂單下單日" in df.columns:
+        order_max_ts = pd.to_datetime(df["訂單下單日"], errors="coerce").max()
+        if pd.notna(order_max_ts):
+            order_max = order_max_ts.date()
+
+    order_default_from = date(today_d.year - 1, 1, 1)
+    order_default_to = order_max or today_d
+
+    if order_max is not None:
+        st.session_state["order_max_date_from_data"] = order_max
+
+    st.session_state.setdefault("expiry_from", expiry_default_from)
+    st.session_state.setdefault("expiry_to", expiry_default_to)
+    st.session_state.setdefault("order_from", order_default_from)
+    st.session_state.setdefault("order_to", order_default_to)
+
+
 def build_kpis(df: pd.DataFrame) -> dict:
     total = safe_sum(df[ANALYSIS_VALUE_COL])
     row_cnt = int(len(df))
@@ -306,9 +497,9 @@ def reset_filters_to_defaults():
     year_from = date(today_d.year, 1, 1)
     year_to = date(today_d.year, 12, 31)
 
-    # 訂單下單日：維持原本的 +/- 12 個月
-    order_default_from = today_d - relativedelta(months=12)
-    order_default_to = today_d + relativedelta(months=12)
+    # 訂單下單日：預設為前一年 1/1 ~ 匯入資料最後一日（若尚未載入資料則先到今日）
+    order_default_from = date(today_d.year - 1, 1, 1)
+    order_default_to = st.session_state.get("order_max_date_from_data", today_d)
 
     st.session_state["future_expiry_enabled"] = False
     st.session_state["future_expiry_months"] = 3
@@ -436,7 +627,7 @@ def show_filter_ranges_if_enabled(ui_state: dict):
         return
     this_rng, next_rng = _get_effective_ranges(ui_state)
     st.caption(
-        f"篩選時間範圍｜本年度：{_fmt_d(this_rng[0])} ~ {_fmt_d(this_rng[1])}　｜　隔年度：{_fmt_d(next_rng[0])} ~ {_fmt_d(next_rng[1])}"
+        f"篩選時間範圍｜本年度：{_fmt_d(this_rng[0])} ~ {_fmt_d(this_rng[1])}　｜　明年度：{_fmt_d(next_rng[0])} ~ {_fmt_d(next_rng[1])}"
     )
 
 
@@ -446,7 +637,7 @@ def show_filter_ranges_if_enabled(ui_state: dict):
 # Header Row：只顯示 最終客戶 + 訂閱到期日年度 + 訂閱總金額（其餘欄位 pd.NA）
 # ✅ 依訂閱總金額由高至低排序（你指定）
 # ---------------------------
-def build_grouped_detail_report_v2(df: pd.DataFrame) -> pd.DataFrame:
+def build_grouped_detail_report_v2(df: pd.DataFrame, df_next: pd.DataFrame | None = None) -> pd.DataFrame:
     if df is None or df.empty:
         return pd.DataFrame()
 
@@ -470,20 +661,24 @@ def build_grouped_detail_report_v2(df: pd.DataFrame) -> pd.DataFrame:
     if sort_cols:
         d = d.sort_values(sort_cols, kind="mergesort")
 
-    # 客戶+年度 總金額（使用成交價未稅小計）
+    # 客戶+年度 總金額（使用成交價未稅小計）+ 最近到期日（用於未續約示警）
     key_cols = ["最終客戶", EXPIRY_YEAR_COL]
     key_cols = [c for c in key_cols if c in d.columns]
     totals = (
-        d.groupby(key_cols, dropna=False)[ANALYSIS_VALUE_COL]
-        .apply(lambda s: pd.to_numeric(s, errors="coerce").fillna(0).sum())
+        d.groupby(key_cols, dropna=False)
+        .agg(
+            訂閱總金額=(ANALYSIS_VALUE_COL, lambda s: pd.to_numeric(s, errors="coerce").fillna(0).sum()),
+            最近到期日=("訂閱到期日", "min"),
+        )
         .reset_index()
-        .rename(columns={ANALYSIS_VALUE_COL: "訂閱總金額"})
     )
 
     # ✅ 群組排序：依訂閱總金額 DESC
     totals_sorted = totals.copy()
     totals_sorted["訂閱總金額"] = pd.to_numeric(totals_sorted["訂閱總金額"], errors="coerce").fillna(0)
     totals_sorted = totals_sorted.sort_values("訂閱總金額", ascending=False, kind="mergesort")
+
+    renewal_lookup = build_group_renewal_lookup(df_next)
 
     out_rows: list[dict] = []
 
@@ -492,6 +687,13 @@ def build_grouped_detail_report_v2(df: pd.DataFrame) -> pd.DataFrame:
         cust = trow.get("最終客戶", pd.NA)
         yr = trow.get(EXPIRY_YEAR_COL, pd.NA)
         total = float(trow.get("訂閱總金額", 0) or 0)
+        warning_text, warning_color, warning_threshold = get_group_warning_meta_with_renewal(
+            min_expiry_dt=trow.get("最近到期日", pd.NaT),
+            current_total=total,
+            customer=cust,
+            expiry_year=yr,
+            renewal_lookup=renewal_lookup,
+        )
 
         # 對應的明細列
         sub = d.copy()
@@ -508,6 +710,9 @@ def build_grouped_detail_report_v2(df: pd.DataFrame) -> pd.DataFrame:
         out_rows.append(
             {
                 "_row_type": "HEADER",
+                "未續約示警": warning_text,
+                "_warning_color": warning_color,
+                "_warning_threshold": warning_threshold,
                 "最終客戶": cust,
                 EXPIRY_YEAR_COL: yr,
                 "訂閱總金額": total,
@@ -526,6 +731,9 @@ def build_grouped_detail_report_v2(df: pd.DataFrame) -> pd.DataFrame:
             out_rows.append(
                 {
                     "_row_type": "DETAIL",
+                    "未續約示警": pd.NA,
+                    "_warning_color": "",
+                    "_warning_threshold": pd.NA,
                     "最終客戶": pd.NA,
                     EXPIRY_YEAR_COL: pd.NA,
                     "訂閱總金額": pd.NA,
@@ -544,6 +752,9 @@ def build_grouped_detail_report_v2(df: pd.DataFrame) -> pd.DataFrame:
 
     ordered_cols = [
         "_row_type",
+        "未續約示警",
+        "_warning_color",
+        "_warning_threshold",
         "最終客戶",
         EXPIRY_YEAR_COL,
         "訂閱總金額",
@@ -1260,8 +1471,8 @@ def render_detail_table(df_source: pd.DataFrame, editor_key: str, selectable: bo
 # ---------------------------
 # 分組明細表共用：渲染（保持一致）
 # ---------------------------
-def render_grouped_table(df_source: pd.DataFrame):
-    grouped_df_local = build_grouped_detail_report_v2(df_source)
+def render_grouped_table(df_source: pd.DataFrame, df_next: pd.DataFrame | None = None):
+    grouped_df_local = build_grouped_detail_report_v2(df_source, df_next=df_next)
 
     if grouped_df_local.empty:
         st.info("無資料可顯示（此區塊視為 0）")
@@ -1272,15 +1483,33 @@ def render_grouped_table(df_source: pd.DataFrame):
             return ["font-weight:700; background-color: rgba(0,0,0,0.04);"] * len(row)
         return [""] * len(row)
 
+    def _warning_color_style(df_in: pd.DataFrame) -> pd.DataFrame:
+        styles = pd.DataFrame("", index=df_in.index, columns=df_in.columns)
+        if "未續約示警" not in df_in.columns:
+            return styles
+
+        for idx, row in df_in.iterrows():
+            raw_text_val = row.get("未續約示警", "")
+            raw_color_val = row.get("_warning_color", "")
+
+            text_val = "" if pd.isna(raw_text_val) else str(raw_text_val).strip()
+            color_val = "" if pd.isna(raw_color_val) else str(raw_color_val).strip()
+
+            if text_val and color_val:
+                styles.at[idx, "未續約示警"] = f"color:{color_val}; font-weight:700;"
+        return styles
+
     num_cols = [c for c in ["訂閱總金額", "數量", "成交單價未稅", ANALYSIS_VALUE_COL] if c in grouped_df_local.columns]
     fmt_map = {c: _safe_thousands_formatter for c in num_cols}
     if "訂閱到期日" in grouped_df_local.columns:
         fmt_map["訂閱到期日"] = _safe_date_formatter
 
-    styled_grouped = grouped_df_local.style.apply(_row_style, axis=1).format(fmt_map)
+    styled_grouped = grouped_df_local.style.apply(_row_style, axis=1).apply(_warning_color_style, axis=None).format(fmt_map)
+
+    hide_cols = [c for c in ["_row_type", "_warning_color", "_warning_threshold"] if c in grouped_df_local.columns]
 
     st.dataframe(
-        styled_grouped.hide(axis="columns", subset=["_row_type"]),
+        styled_grouped.hide(axis="columns", subset=hide_cols),
         use_container_width=True,
         hide_index=True,
     )
@@ -1294,7 +1523,7 @@ st.sidebar.title("⚙️ 篩選與匯入")
 # ✅ 新增：顯示篩選時間範圍（放在左邊篩選與匯入最上方）
 st.session_state.setdefault("show_filter_ranges", False)
 st.sidebar.checkbox(
-    "顯示各區塊篩選時間範圍（本年度/隔年度）",
+    "顯示各區塊篩選時間範圍（今年度/明年度）",
     value=st.session_state.get("show_filter_ranges", False),
     key="show_filter_ranges",
 )
@@ -1331,20 +1560,11 @@ future_expiry_months = st.sidebar.selectbox(
 
 st.sidebar.divider()
 
-today_d = date.today()
-
-# ✅ 訂閱到期日：預設只載入本年度（1/1~12/31）
-year_from = date(today_d.year, 1, 1)
-year_to = date(today_d.year, 12, 31)
-
-# ✅ 訂單下單日：維持原本的 +/- 12 個月預設
-order_default_from = today_d - relativedelta(months=12)
-order_default_to = today_d + relativedelta(months=12)
-
-expiry_from = st.sidebar.date_input("7) 訂閱到期日（起）", value=st.session_state.get("expiry_from", year_from), key="expiry_from")
-expiry_to = st.sidebar.date_input("7) 訂閱到期日（迄）", value=st.session_state.get("expiry_to", year_to), key="expiry_to")
-order_from = st.sidebar.date_input("7) 訂單下單日（起）", value=st.session_state.get("order_from", order_default_from), key="order_from")
-order_to = st.sidebar.date_input("7) 訂單下單日（迄）", value=st.session_state.get("order_to", order_default_to), key="order_to")
+# 先佔位，待資料讀取完成後依資料內容建立真正預設值
+expiry_from = st.session_state.get("expiry_from", None)
+expiry_to = st.session_state.get("expiry_to", None)
+order_from = st.session_state.get("order_from", None)
+order_to = st.session_state.get("order_to", None)
 
 if st.query_params.get("overlay_close") == "1":
     handle_close_overlay_request()
@@ -1352,7 +1572,7 @@ if st.query_params.get("overlay_close") == "1":
 # ---------------------------
 # 匯入 + 清洗（含進度）
 # ---------------------------
-st.title("📊 CSP 訂單儀表板（Streamlit）")
+st.title("📊 Weblink M365 續約精準行銷｜企業儀表板")
 
 status = st.status("等待匯入 Excel…", expanded=True)
 progress = st.progress(0)
@@ -1369,6 +1589,14 @@ try:
     progress.progress(40)
     status.update(label="清洗資料：刪除訂單狀態 / 保留欄位 / 轉型 / 新增年小計…", state="running", expanded=True)
     df = clean_transform_cached(df_raw)
+
+    # ✅ 依匯入資料初始化日期預設值
+    init_filter_defaults_from_data(df)
+
+    expiry_from = st.sidebar.date_input("7) 訂閱到期日（起）", value=st.session_state.get("expiry_from"), key="expiry_from")
+    expiry_to = st.sidebar.date_input("7) 訂閱到期日（迄）", value=st.session_state.get("expiry_to"), key="expiry_to")
+    order_from = st.sidebar.date_input("7) 訂單下單日（起）", value=st.session_state.get("order_from"), key="order_from")
+    order_to = st.sidebar.date_input("7) 訂單下單日（迄）", value=st.session_state.get("order_to"), key="order_to")
 
     progress.progress(70)
     status.update(label="建立篩選選項…", state="running", expanded=True)
@@ -1524,17 +1752,17 @@ kpis_this = build_kpis(df_filtered)
 # 明年度（原篩選範圍 +1 年；若無資料視為 0）
 kpis_next = build_kpis(df_filtered_next)
 
-# 差異（本年度 - 明年度）
+# 差異（明年度 - 今年度）
 kpis_diff = {
-    "筆數": kpis_this["筆數"] - kpis_next["筆數"],
-    "最終客戶數": kpis_this["最終客戶數"] - kpis_next["最終客戶數"],
-    "經銷商數": kpis_this["經銷商數"] - kpis_next["經銷商數"],
-    f"{ANALYSIS_VALUE_COL}合計": kpis_this[f"{ANALYSIS_VALUE_COL}合計"] - kpis_next[f"{ANALYSIS_VALUE_COL}合計"],
-    f"{ANALYSIS_VALUE_COL}平均每筆": kpis_this[f"{ANALYSIS_VALUE_COL}平均每筆"] - kpis_next[f"{ANALYSIS_VALUE_COL}平均每筆"],
-    f"{ANALYSIS_VALUE_COL}平均每客戶": kpis_this[f"{ANALYSIS_VALUE_COL}平均每客戶"] - kpis_next[f"{ANALYSIS_VALUE_COL}平均每客戶"],
+    "筆數": kpis_next["筆數"] - kpis_this["筆數"],
+    "最終客戶數": kpis_next["最終客戶數"] - kpis_this["最終客戶數"],
+    "經銷商數": kpis_next["經銷商數"] - kpis_this["經銷商數"],
+    f"{ANALYSIS_VALUE_COL}合計": kpis_next[f"{ANALYSIS_VALUE_COL}合計"] - kpis_this[f"{ANALYSIS_VALUE_COL}合計"],
+    f"{ANALYSIS_VALUE_COL}平均每筆": kpis_next[f"{ANALYSIS_VALUE_COL}平均每筆"] - kpis_this[f"{ANALYSIS_VALUE_COL}平均每筆"],
+    f"{ANALYSIS_VALUE_COL}平均每客戶": kpis_next[f"{ANALYSIS_VALUE_COL}平均每客戶"] - kpis_this[f"{ANALYSIS_VALUE_COL}平均每客戶"],
 }
 
-st.caption("本年度（原篩選）")
+st.caption("今年度（原篩選）")
 k1, k2, k3, k4, k5, k6 = st.columns(6)
 k1.metric("筆數", f"{kpis_this['筆數']:,}")
 k2.metric("最終客戶數", f"{kpis_this['最終客戶數']:,}")
@@ -1552,8 +1780,8 @@ n4.metric(f"{ANALYSIS_VALUE_COL}合計", format_money(kpis_next[f"{ANALYSIS_VALU
 n5.metric(f"{ANALYSIS_VALUE_COL}平均每筆", format_money(kpis_next[f"{ANALYSIS_VALUE_COL}平均每筆"]))
 n6.metric(f"{ANALYSIS_VALUE_COL}平均每客戶", format_money(kpis_next[f"{ANALYSIS_VALUE_COL}平均每客戶"]))
 
-# ✅ 差異（本年度 - 明年度）數值以棕色呈現（你的需求）
-st.caption("差異（本年度 - 明年度）")
+# ✅ 差異（明年度 - 今年度）數值以棕色呈現（你的需求）
+st.caption("差異（明年度 - 今年度）")
 
 
 def _kpi_diff_card(label: str, value_str: str):
@@ -1607,8 +1835,8 @@ top10_customer_next_all["明年度續約金額"] = pd.to_numeric(top10_customer_
 top10_customer = top10_customer_this.merge(top10_customer_next_all, on="最終客戶", how="left")
 top10_customer["明年度續約金額"] = pd.to_numeric(top10_customer["明年度續約金額"], errors="coerce").fillna(0)
 
-# 差異金額 = 需約金額 - 明年度續約金額
-top10_customer["差異金額"] = top10_customer["需約金額"] - top10_customer["明年度續約金額"]
+# 差異金額 = 明年度續約金額 - 今年度需約金額
+top10_customer["差異金額"] = top10_customer["明年度續約金額"] - top10_customer["需約金額"]
 
 # 欄位順序：需約金額後 -> 明年度續約金額 -> 差異金額
 cols = top10_customer.columns.tolist()
@@ -1646,8 +1874,8 @@ top10_dealer_next_all["明年度續約金額"] = pd.to_numeric(top10_dealer_next
 top10_dealer = top10_dealer_this.merge(top10_dealer_next_all, on="經銷商", how="left")
 top10_dealer["明年度續約金額"] = pd.to_numeric(top10_dealer["明年度續約金額"], errors="coerce").fillna(0)
 
-# ✅ 差異金額 = 金額 - 明年度續約金額
-top10_dealer["差異金額"] = top10_dealer["金額"] - top10_dealer["明年度續約金額"]
+# ✅ 差異金額 = 明年度續約金額 - 今年度金額
+top10_dealer["差異金額"] = top10_dealer["明年度續約金額"] - top10_dealer["金額"]
 
 # 欄位順序：金額 -> 明年度續約金額 -> 差異金額
 dealer_cols = top10_dealer.columns.tolist()
@@ -1698,7 +1926,7 @@ with c1:
 
 
 with c3:
-    st.caption("Line：到期月份金額趨勢（本年度 vs 隔年度）")
+    st.caption("Line：到期月份金額趨勢（今年度 vs 明年度）")
 
     def _months_in_range(start_d: date, end_d: date) -> list[int]:
         """
@@ -1769,7 +1997,7 @@ with c3:
                 .assign(年度="本年度"),
                 merged[["到期月份", f"{ANALYSIS_VALUE_COL}_隔年度"]]
                 .rename(columns={f"{ANALYSIS_VALUE_COL}_隔年度": ANALYSIS_VALUE_COL})
-                .assign(年度="隔年度"),
+                .assign(年度="明年度"),
             ],
             ignore_index=True,
         )
@@ -1792,7 +2020,7 @@ with c3:
             .mark_bar()
             .encode(
                 x=alt.X("到期月份:O", sort=months_scope, title="到期月份"),
-                y=alt.Y("差異:Q", title="差異（隔年度 - 本年度）"),
+                y=alt.Y("差異:Q", title="差異（明年度 - 今年度）"),
                 # 正值（隔 > 本）用棕色；負值用藍色
                 color=alt.condition(
                     alt.datum.差異 >= 0,
@@ -1802,8 +2030,8 @@ with c3:
                 tooltip=[
                     "到期月份",
                     alt.Tooltip(f"{ANALYSIS_VALUE_COL}_本年度:Q", title="本年度", format=",.0f"),
-                    alt.Tooltip(f"{ANALYSIS_VALUE_COL}_隔年度:Q", title="隔年度", format=",.0f"),
-                    alt.Tooltip("差異:Q", title="差異（隔-本）", format=",.0f"),
+                    alt.Tooltip(f"{ANALYSIS_VALUE_COL}_隔年度:Q", title="明年度", format=",.0f"),
+                    alt.Tooltip("差異:Q", title="差異（明-今）", format=",.0f"),
                 ],
             )
             .properties(height=160)
@@ -1847,7 +2075,7 @@ with c4:
             use_container_width=True,
         )
 with c5:
-    st.caption("商品名稱：Top 15（金額以及數量之增減｜本年度 vs 隔年度）")
+    st.caption("商品名稱：Top 15（金額以及數量之增減｜今年度 vs 明年度）")
 
     # 依本年度金額排序取 Top15 商品
     prod_amt_this = df_filtered.groupby("商品名稱", dropna=False)[ANALYSIS_VALUE_COL].sum()
@@ -1865,10 +2093,10 @@ with c5:
         prod_amt_next = df_filtered_next.groupby("商品名稱", dropna=False)[ANALYSIS_VALUE_COL].sum()
         prod_amt_next = pd.to_numeric(prod_amt_next, errors="coerce").fillna(0)
         amt_next = prod_amt_next.reindex(top_products, fill_value=0).reset_index()
-        amt_next.columns = ["商品名稱", "金額_隔年度"]
+        amt_next.columns = ["商品名稱", "金額_明年度"]
 
         merged = amt_this.merge(amt_next, on="商品名稱", how="outer").fillna(0)
-        merged["金額_差異"] = merged["金額_隔年度"] - merged["金額_本年度"]
+        merged["金額_差異"] = merged["金額_明年度"] - merged["金額_本年度"]
 
         # ===== 數量 =====
         qty_this = df_filtered.groupby("商品名稱", dropna=False)["數量"].sum()
@@ -1879,11 +2107,11 @@ with c5:
         qty_next = df_filtered_next.groupby("商品名稱", dropna=False)["數量"].sum()
         qty_next = pd.to_numeric(qty_next, errors="coerce").fillna(0)
         qty_next = qty_next.reindex(top_products, fill_value=0).reset_index()
-        qty_next.columns = ["商品名稱", "數量_隔年度"]
+        qty_next.columns = ["商品名稱", "數量_明年度"]
 
         merged = merged.merge(qty_this, on="商品名稱", how="left")
         merged = merged.merge(qty_next, on="商品名稱", how="left")
-        merged["數量_差異"] = merged["數量_隔年度"] - merged["數量_本年度"]
+        merged["數量_差異"] = merged["數量_明年度"] - merged["數量_本年度"]
 
         merged = merged.sort_values("金額_本年度", ascending=False)
         # ✅ 讓「差異直條圖」X 軸改顯示差異數值（取代商品名稱）
@@ -1898,7 +2126,7 @@ with c5:
         # ------------------------
         line_amt_df = pd.concat([
             merged[["商品名稱", "金額_本年度"]].rename(columns={"金額_本年度": "值"}).assign(年度="本年度"),
-            merged[["商品名稱", "金額_隔年度"]].rename(columns={"金額_隔年度": "值"}).assign(年度="隔年度")
+            merged[["商品名稱", "金額_明年度"]].rename(columns={"金額_明年度": "值"}).assign(年度="明年度")
         ])
 
         line_amt = (
@@ -1918,19 +2146,19 @@ with c5:
             .mark_bar()
             .encode(
                 # ✅ X 軸改用「金額差異_label」(顯示差異數值)，不再顯示商品名稱
-                x=alt.X("金額差異_label:O", sort=sort_list_amt_diff, title="金額差異（隔-本）"),
-                y=alt.Y("金額_差異:Q", title="金額差異（隔-本）"),
+                x=alt.X("金額差異_label:O", sort=sort_list_amt_diff, title="金額差異（明-今）"),
+                y=alt.Y("金額_差異:Q", title="金額差異（明-今）"),
                 color=alt.condition(
                     alt.datum.金額_差異 >= 0,
                     alt.value("#6A0DAD"),
                     alt.value("#DC143C")
                 ),
-                # ✅ Tooltip：商品名稱、金額_本年度、金額_隔年度、金額_差異（依你指定的順序）
+                # ✅ Tooltip：商品名稱、金額_本年度、金額_明年度、金額_差異（依你指定的順序）
                 tooltip=[
                     alt.Tooltip("商品名稱:N", title="商品名稱"),
                     alt.Tooltip("金額_本年度:Q", title="金額_本年度", format=",.0f"),
-                    alt.Tooltip("金額_隔年度:Q", title="金額_隔年度", format=",.0f"),
-                    alt.Tooltip("金額_差異:Q", title="金額_差異（隔-本）", format=",.0f"),
+                    alt.Tooltip("金額_明年度:Q", title="金額_明年度", format=",.0f"),
+                    alt.Tooltip("金額_差異:Q", title="金額_差異（明-今）", format=",.0f"),
                 ],
             )
             .properties(height=150)
@@ -1941,7 +2169,7 @@ with c5:
         # ------------------------
         line_qty_df = pd.concat([
             merged[["商品名稱", "數量_本年度"]].rename(columns={"數量_本年度": "值"}).assign(年度="本年度"),
-            merged[["商品名稱", "數量_隔年度"]].rename(columns={"數量_隔年度": "值"}).assign(年度="隔年度")
+            merged[["商品名稱", "數量_明年度"]].rename(columns={"數量_明年度": "值"}).assign(年度="明年度")
         ])
 
         line_qty = (
@@ -1961,7 +2189,7 @@ with c5:
             .mark_bar()
             .encode(
                 x=alt.X("商品名稱:N", sort=sort_list, title="商品名稱"),
-                y=alt.Y("數量_差異:Q", title="數量差異（隔-本）"),
+                y=alt.Y("數量_差異:Q", title="數量差異（明-今）"),
                 color=alt.condition(
                     alt.datum.數量_差異 >= 0,
                     alt.value("#2E8B57"),
@@ -1970,8 +2198,8 @@ with c5:
                 tooltip=[
                     alt.Tooltip("商品名稱:N", title="商品名稱"),
                     alt.Tooltip("數量_本年度:Q", title="數量_本年度", format=",.0f"),
-                    alt.Tooltip("數量_隔年度:Q", title="數量_隔年度", format=",.0f"),
-                    alt.Tooltip("數量_差異:Q", title="數量_差異（隔-本）", format=",.0f"),
+                    alt.Tooltip("數量_明年度:Q", title="數量_明年度", format=",.0f"),
+                    alt.Tooltip("數量_差異:Q", title="數量_差異（明-今）", format=",.0f"),
                 ],
             )
             .properties(height=150)
@@ -2087,12 +2315,12 @@ show_filter_ranges_if_enabled(ui_state)
 
 this_total = float(pd.to_numeric(df_filtered[ANALYSIS_VALUE_COL], errors="coerce").fillna(0).sum()) if (df_filtered is not None and not df_filtered.empty) else 0.0
 next_total = float(pd.to_numeric(df_filtered_next[ANALYSIS_VALUE_COL], errors="coerce").fillna(0).sum()) if (df_filtered_next is not None and not df_filtered_next.empty) else 0.0
-diff_total = this_total - next_total
+diff_total = next_total - this_total
 
 a1, a2, a3 = st.columns(3)
-a1.metric("今年年度總額", format_money(this_total))
-a2.metric("明年年度總額（原篩選範圍 +1 年）", format_money(next_total))
-a3.metric("年度總額差異（今年 - 明年）", format_signed_money(diff_total))
+a1.metric("今年度總額", format_money(this_total))
+a2.metric("明年度總額（原篩選範圍 +1 年）", format_money(next_total))
+a3.metric("年度總額差異（明年 - 今年）", format_signed_money(diff_total))
 
 st.divider()
 
@@ -2113,7 +2341,7 @@ st.caption("大綱模式：每個【最終客戶 + 年度】先顯示一列 Head
 # ✅ 依「Header（最終客戶 + 到期年度）」產生 Email 範例（仿照 12) 明細表格）
 # ✅ 新增：電話訪談勾選欄位 → 右下方浮動視窗顯示口語化訪談腳本
 # ----------------------------------------------------------
-st.caption("操作：勾選下表任一 Header（最終客戶 + 到期年度）即可產生 Email 範例或電話訪談腳本；取消勾選即可關閉視窗。")
+st.caption("操作：勾選下表任一 Header（最終客戶 + 到期年度）即可產生 Email 範例或電話訪談腳本；「未續約示警」除原本 15/30/45/60/90 天提醒外，若明年度已有續約資訊則顯示「已續約」，且明年度金額 <= 今年度為綠色、明年度金額 > 今年度為紅色；取消勾選即可關閉視窗。")
 
 
 def _first_non_empty(series: pd.Series) -> str:
@@ -2128,6 +2356,7 @@ headers_this = (
     df_filtered.groupby(["最終客戶", EXPIRY_YEAR_COL], dropna=False)
     .agg(
         訂閱總金額=(ANALYSIS_VALUE_COL, "sum"),
+        最近到期日=("訂閱到期日", "min"),
         客戶微軟網域=("客戶微軟網域", _first_non_empty),
         經銷商=("經銷商", _first_non_empty),
         展碁業務=("展碁業務", _first_non_empty),
@@ -2138,6 +2367,42 @@ headers_this = (
 if not headers_this.empty:
     headers_view = headers_this.copy()
     headers_view["訂閱總金額"] = pd.to_numeric(headers_view["訂閱總金額"], errors="coerce").fillna(0)
+    _header_renewal_lookup = build_group_renewal_lookup(df_filtered_next)
+
+    def _compute_header_warning_meta(row: pd.Series) -> pd.Series:
+        warning_text, warning_color, warning_threshold = get_group_warning_meta_with_renewal(
+            min_expiry_dt=row.get("最近到期日", pd.NaT),
+            current_total=row.get("訂閱總金額", 0),
+            customer=row.get("最終客戶", ""),
+            expiry_year=row.get(EXPIRY_YEAR_COL, pd.NA),
+            renewal_lookup=_header_renewal_lookup,
+        )
+        return pd.Series(
+            {
+                "未續約示警": warning_text,
+                "_warning_color": warning_color,
+                "_warning_threshold": warning_threshold,
+                "未續約示警顯示": format_warning_display_text(warning_text, warning_color, warning_threshold),
+            }
+        )
+
+    headers_view = pd.concat([headers_view, headers_view.apply(_compute_header_warning_meta, axis=1)], axis=1)
+    headers_view = headers_view.drop(columns=["最近到期日"], errors="ignore")
+
+    ordered_cols = [
+        "未續約示警顯示",
+        "最終客戶",
+        EXPIRY_YEAR_COL,
+        "訂閱總金額",
+        "客戶微軟網域",
+        "經銷商",
+        "展碁業務",
+        "未續約示警",
+        "_warning_color",
+        "_warning_threshold",
+    ]
+    headers_view = headers_view[[c for c in ordered_cols if c in headers_view.columns]]
+
     # ✅ Header 清單也依訂閱總金額排序（與分組表一致）
     headers_view = headers_view.sort_values("訂閱總金額", ascending=False).reset_index(drop=True)
 
@@ -2155,6 +2420,10 @@ if not headers_this.empty:
         column_config={
             "選取": st.column_config.CheckboxColumn(help="勾選一筆 Header 以產生 Email", default=False),
             "電話訪談": st.column_config.CheckboxColumn(help="勾選一筆 Header 以產生電話訪談口語腳本", default=False),
+            "未續約示警顯示": st.column_config.TextColumn("未續約示警", help="🟢 已續約：明年度金額 <= 今年度；🔴 已續約：明年度金額 > 今年度；其餘為天數提醒"),
+            "未續約示警": None,
+            "_warning_color": None,
+            "_warning_threshold": None,
         },
         key=header_editor_key,
     )
@@ -2223,7 +2492,7 @@ else:
     st.info("無 Header 可選（此區塊視為 0）")
 
 # 仍保留原本的大綱分組明細表（顯示用）
-render_grouped_table(df_filtered)
+render_grouped_table(df_filtered, df_next=df_filtered_next)
 
 st.divider()
 
