@@ -15,9 +15,9 @@ st.set_page_config(page_title="Weblink M365 續約精準行銷｜企業儀表板
 # ---------------------------
 # 常數設定
 # ---------------------------
-DEFAULT_XLSX_PATH = r"D:\DeskT\Austin 自動化\新增資料夾 (2)\CSP訂單資料_raw.xlsx"
+#DEFAULT_XLSX_PATH = r"D:\DeskT\Austin 自動化\新增資料夾 (2)\CSP訂單資料_raw.xlsx"
 
-#DEFAULT_XLSX_PATH = "CSP訂單資料_raw.xlsx"
+DEFAULT_XLSX_PATH = "CSP訂單資料_raw.xlsx"
 
 DROP_ORDER_STATUS = {"下單異常", "已取消", "已退貨"}
 
