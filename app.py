@@ -13,6 +13,415 @@ from dateutil.relativedelta import relativedelta
 st.set_page_config(page_title="Weblink M365 續約精準行銷｜企業儀表板", page_icon="📊", layout="wide")
 
 # ---------------------------
+# 🎨 全域專業樣式注入
+# ---------------------------
+_GLOBAL_CSS = """
+<style>
+/* === 全域字體與背景 === */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+html, body, [class*="css"] {
+    font-family: 'Noto Sans TC', 'Inter', sans-serif !important;
+}
+
+/* 主背景 */
+[data-testid="stAppViewContainer"] {
+    background: linear-gradient(135deg, #f0f4f8 0%, #e8edf5 50%, #f0f4f8 100%) !important;
+    min-height: 100vh;
+}
+
+[data-testid="stApp"] {
+    background: transparent !important;
+}
+
+.main .block-container {
+    padding: 1.5rem 2rem 2rem 2rem !important;
+    max-width: 1600px !important;
+}
+
+/* === 頁面標題 === */
+h1 {
+    font-size: 1.8rem !important;
+    font-weight: 900 !important;
+    background: linear-gradient(135deg, #1a237e 0%, #283593 50%, #1565c0 100%);
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    letter-spacing: -0.5px;
+    padding-bottom: 0.3rem;
+}
+
+/* === subheader 樣式 === */
+h2, [data-testid="stHeadingWithActionElements"] h2 {
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+    color: #1a237e !important;
+    border-left: 4px solid #1565c0;
+    padding: 0.4rem 0 0.4rem 0.8rem !important;
+    margin-top: 1.2rem !important;
+    margin-bottom: 0.5rem !important;
+    background: rgba(21, 101, 192, 0.06);
+    border-radius: 0 6px 6px 0;
+}
+
+/* === 側邊欄美化 === */
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #1a237e 0%, #283593 40%, #1565c0 100%) !important;
+    border-right: none !important;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.15) !important;
+}
+
+/* 側邊欄標籤、說明文字 */
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] .stMarkdown p,
+[data-testid="stSidebar"] .stCaption,
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+[data-testid="stSidebar"] small {
+    color: rgba(255,255,255,0.88) !important;
+}
+
+[data-testid="stSidebar"] hr {
+    border-color: rgba(255,255,255,0.2) !important;
+}
+
+/* 側邊欄 h1/h2/h3 */
+[data-testid="stSidebar"] h1,
+[data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3 {
+    color: white !important;
+    -webkit-text-fill-color: white !important;
+}
+
+/* 輸入框容器改白底深字，確保可讀 */
+[data-testid="stSidebar"] [data-baseweb="input"],
+[data-testid="stSidebar"] [data-baseweb="textarea"] {
+    background: rgba(255,255,255,0.95) !important;
+    border: 1px solid rgba(255,255,255,0.5) !important;
+    border-radius: 8px !important;
+}
+[data-testid="stSidebar"] input,
+[data-testid="stSidebar"] textarea {
+    color: #1a237e !important;
+    -webkit-text-fill-color: #1a237e !important;
+    background: transparent !important;
+}
+[data-testid="stSidebar"] input::placeholder {
+    color: #9e9e9e !important;
+    -webkit-text-fill-color: #9e9e9e !important;
+}
+
+/* select 選擇框 */
+[data-testid="stSidebar"] [data-baseweb="select"] > div:first-child {
+    background: rgba(255,255,255,0.95) !important;
+    border: 1px solid rgba(255,255,255,0.5) !important;
+    border-radius: 8px !important;
+}
+[data-testid="stSidebar"] [data-baseweb="select"] span,
+[data-testid="stSidebar"] [data-baseweb="select"] div {
+    color: #1a237e !important;
+    -webkit-text-fill-color: #1a237e !important;
+}
+/* select 內部箭頭保持可見 */
+[data-testid="stSidebar"] [data-baseweb="select"] svg {
+    fill: #1a237e !important;
+}
+
+/* multiselect 已選 tag */
+[data-testid="stSidebar"] [data-baseweb="tag"] {
+    background: #1565c0 !important;
+    border: 1px solid rgba(255,255,255,0.4) !important;
+    border-radius: 6px !important;
+}
+[data-testid="stSidebar"] [data-baseweb="tag"] span,
+[data-testid="stSidebar"] [data-baseweb="tag"] div {
+    color: white !important;
+    -webkit-text-fill-color: white !important;
+}
+
+/* 日期輸入框 */
+[data-testid="stSidebar"] [data-testid="stDateInput"] [data-baseweb="input"] {
+    background: rgba(255,255,255,0.95) !important;
+}
+[data-testid="stSidebar"] [data-testid="stDateInput"] input {
+    color: #1a237e !important;
+    -webkit-text-fill-color: #1a237e !important;
+}
+
+/* 上傳元件 */
+[data-testid="stSidebar"] [data-testid="stFileUploader"] {
+    background: rgba(255,255,255,0.12) !important;
+    border: 2px dashed rgba(255,255,255,0.4) !important;
+    border-radius: 10px !important;
+}
+[data-testid="stSidebar"] [data-testid="stFileUploader"] * {
+    color: rgba(255,255,255,0.9) !important;
+    -webkit-text-fill-color: rgba(255,255,255,0.9) !important;
+}
+[data-testid="stSidebar"] [data-testid="stFileUploader"] button {
+    background: rgba(255,255,255,0.2) !important;
+    border: 1px solid rgba(255,255,255,0.4) !important;
+    color: white !important;
+    -webkit-text-fill-color: white !important;
+    border-radius: 6px !important;
+}
+
+/* checkbox */
+[data-testid="stSidebar"] [data-testid="stCheckbox"] label,
+[data-testid="stSidebar"] [data-testid="stCheckbox"] span {
+    color: rgba(255,255,255,0.9) !important;
+    -webkit-text-fill-color: rgba(255,255,255,0.9) !important;
+}
+
+/* 側邊欄按鈕 */
+[data-testid="stSidebar"] .stButton button {
+    background: rgba(255,255,255,0.15) !important;
+    border: 1px solid rgba(255,255,255,0.3) !important;
+    color: white !important;
+    -webkit-text-fill-color: white !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease !important;
+}
+[data-testid="stSidebar"] .stButton button:hover {
+    background: rgba(255,255,255,0.25) !important;
+    border-color: rgba(255,255,255,0.5) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+}
+
+/* subheader 在 sidebar */
+[data-testid="stSidebar"] h2 {
+    color: rgba(255,255,255,0.95) !important;
+    -webkit-text-fill-color: rgba(255,255,255,0.95) !important;
+    background: rgba(255,255,255,0.12) !important;
+    border-left: 3px solid rgba(255,255,255,0.6) !important;
+}
+
+/* === KPI 指標卡片 === */
+[data-testid="stMetric"] {
+    background: white !important;
+    border-radius: 14px !important;
+    padding: 1rem 1.2rem !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    border-top: 3px solid #1565c0 !important;
+}
+
+[data-testid="stMetric"]:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(21,101,192,0.15), 0 0 0 1px rgba(21,101,192,0.1) !important;
+}
+
+[data-testid="stMetricLabel"] {
+    color: #546e7a !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+[data-testid="stMetricValue"] {
+    color: #1a237e !important;
+    font-size: 1.6rem !important;
+    font-weight: 800 !important;
+    font-family: 'Inter', sans-serif !important;
+    letter-spacing: -0.5px !important;
+}
+
+/* === 資料表美化 === */
+[data-testid="stDataFrame"],
+[data-testid="stDataEditor"] {
+    border-radius: 12px !important;
+    overflow: visible !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06) !important;
+    border: 1px solid rgba(0,0,0,0.06) !important;
+}
+
+/* 保留資料表右上角 Show chart / Show data 控制列 */
+[data-testid="stDataFrame"] > div,
+[data-testid="stDataEditor"] > div {
+    overflow: visible !important;
+}
+
+/* === 圖表容器：保留 Show chart / Show data 工具列可見 === */
+[data-testid="stVegaLiteChart"],
+[data-testid="stVegaLiteChart"] > div,
+[data-testid="stVegaLiteChart"] [data-testid="stToolbar"] {
+    overflow: visible !important;
+}
+
+[data-testid="stVegaLiteChart"] .vega-embed,
+[data-testid="stVegaLiteChart"] .vega-embed > div {
+    max-width: 100% !important;
+    overflow: visible !important;
+}
+
+[data-testid="stVegaLiteChart"] {
+    padding-top: 0.35rem !important;
+    padding-bottom: 0.5rem !important;
+    min-height: 420px !important;
+}
+
+/* === 分隔線 === */
+hr {
+    border: none !important;
+    border-top: 2px solid rgba(21,101,192,0.1) !important;
+    margin: 1.5rem 0 !important;
+}
+
+/* === caption 樣式 === */
+[data-testid="stCaptionContainer"],
+.stCaption {
+    color: #78909c !important;
+    font-size: 0.78rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.2px;
+}
+
+/* === status/progress === */
+[data-testid="stStatus"] {
+    border-radius: 10px !important;
+    border: 1px solid rgba(21,101,192,0.15) !important;
+    background: white !important;
+}
+
+[data-testid="stProgressBar"] > div {
+    background: linear-gradient(90deg, #1565c0, #42a5f5) !important;
+    border-radius: 4px !important;
+}
+
+/* === 上傳器 === */
+[data-testid="stFileUploader"] {
+    background: white !important;
+    border-radius: 12px !important;
+    padding: 0.5rem !important;
+    border: 2px dashed rgba(255,255,255,0.3) !important;
+}
+
+/* === info/warning boxes === */
+[data-testid="stInfo"] {
+    background: rgba(21,101,192,0.06) !important;
+    border: 1px solid rgba(21,101,192,0.15) !important;
+    border-radius: 10px !important;
+    border-left: 4px solid #1565c0 !important;
+}
+
+/* === 圖表容器 === */
+[data-testid="stVegaLiteChart"] {
+    background: white !important;
+    border-radius: 14px !important;
+    padding: 0.8rem !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06) !important;
+    border: 1px solid rgba(0,0,0,0.05) !important;
+    overflow: visible !important;
+    max-width: 100% !important;
+}
+
+/* 修正 Altair canvas/svg 超出容器問題，同時保留 Show chart 工具列 */
+[data-testid="stVegaLiteChart"] canvas,
+[data-testid="stVegaLiteChart"] svg {
+    max-width: 100% !important;
+    height: auto !important;
+    display: block !important;
+}
+
+/* === multiselect 標籤 === */
+[data-baseweb="tag"] {
+    background: rgba(21,101,192,0.12) !important;
+    border: 1px solid rgba(21,101,192,0.25) !important;
+    border-radius: 6px !important;
+}
+
+/* === checkbox === */
+[data-testid="stCheckbox"] label {
+    font-weight: 500 !important;
+    font-size: 0.88rem !important;
+}
+
+/* === selectbox === */
+[data-baseweb="select"] {
+    border-radius: 8px !important;
+}
+
+/* === 版面底部留白 === */
+footer { display: none !important; }
+#MainMenu { display: none !important; }
+
+/* overflow 修正 */
+html, body { overflow-x: hidden !important; max-width: 100% !important; }
+.stApp, .main, section.main, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
+    overflow-x: hidden !important;
+    max-width: 100% !important;
+}
+
+/* === 圖表 toolbar：Show data / Show chart 按鈕 === */
+[data-testid="stVegaLiteChart"] [data-testid="StyledFullScreenButton"],
+[data-testid="stVegaLiteChart"] button[title="View fullscreen"],
+[data-testid="stVegaLiteChart"] [aria-label="Show data"],
+[data-testid="stVegaLiteChart"] [aria-label="Show chart"] {
+    color: #1565c0 !important;
+    background: white !important;
+    border: 1px solid rgba(21,101,192,0.2) !important;
+    border-radius: 6px !important;
+}
+/* 強制圖表 toolbar 按鈕可見 */
+[data-testid="stVegaLiteChart"] .vega-embed .chart-wrapper ~ details summary,
+[data-testid="stVegaLiteChart"] .vega-embed summary,
+[data-testid="stVegaLiteChart"] details summary {
+    color: #1565c0 !important;
+}
+/* Show data / Show chart 切換按鈕 (Streamlit wraps in data-testid) */
+button[data-testid="StyledFullScreenButton"] { color: #546e7a !important; }
+/* 圖表上方 toolbar 的所有按鈕 */
+[data-testid="stVegaLiteChart"] > div > div:last-child button,
+[data-testid="stVegaLiteChart"] > div > div:last-child a {
+    color: #546e7a !important;
+    background: rgba(255,255,255,0.9) !important;
+}
+
+/* === Vega toolbar (Show data / Show chart) === */
+.vega-embed .vega-actions a,
+.vega-embed details > summary {
+    color: #1565c0 !important;
+}
+.vega-embed .chart-wrapper {
+    overflow: visible !important;
+    max-width: 100% !important;
+}
+
+/* === 側邊欄上傳器 — 白色方塊修正 === */
+[data-testid="stSidebar"] [data-testid="stFileUploader"] > div {
+    background: rgba(255,255,255,0.08) !important;
+    border: 2px dashed rgba(255,255,255,0.4) !important;
+    border-radius: 10px !important;
+}
+[data-testid="stSidebar"] [data-testid="stFileUploader"] > div > div {
+    background: transparent !important;
+}
+/* 上傳區域拖放框本體 */
+[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] {
+    background: rgba(255,255,255,0.08) !important;
+    border: 2px dashed rgba(255,255,255,0.35) !important;
+    border-radius: 10px !important;
+}
+[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] * {
+    color: rgba(255,255,255,0.9) !important;
+    -webkit-text-fill-color: rgba(255,255,255,0.9) !important;
+}
+/* 上傳按鈕 */
+[data-testid="stSidebar"] [data-testid="stFileUploaderDropzoneInput"] + div button,
+[data-testid="stSidebar"] [data-testid="baseButton-secondary"] {
+    background: rgba(255,255,255,0.18) !important;
+    color: white !important;
+    -webkit-text-fill-color: white !important;
+    border: 1px solid rgba(255,255,255,0.4) !important;
+    border-radius: 7px !important;
+}
+</style>
+"""
+
+# ---------------------------
 # 常數設定
 # ---------------------------
 #DEFAULT_XLSX_PATH = r"D:\DeskT\Austin 自動化\新增資料夾 (2)\CSP訂單資料_raw.xlsx"
@@ -259,7 +668,13 @@ def get_group_warning_meta(min_expiry_dt) -> tuple[str, str, int | None]:
         return "", "", None
 
     days_left = (min_dt.date() - date.today()).days
-    if days_left < 0:
+
+    # ✅ 新增：若尚未超過「到期日後 30 天」，且明年度尚無續約資訊，顯示寬限期
+    # -30 ~ -1：代表已過到期日，但仍在 30 天內
+    if -30 <= days_left < 0:
+        return "寬限期", "#8B4513", -30
+
+    if days_left < -30:
         return "🔴 已到期", "#D32F2F", 0
 
     for threshold, symbol, color in WARNING_SPECS:
@@ -362,6 +777,9 @@ def build_warning_style_map(values: pd.Series | list) -> dict:
             # 已續約顏色需由隱藏欄 _warning_color 決定，這裡先不寫死。
             style_map[v] = "font-weight:700;"
             continue
+        if vv == "寬限期" or "寬限期" in vv:
+            style_map[v] = "color:#8B4513; font-weight:700;"
+            continue
         if "已到期" in vv:
             style_map[v] = "color:#D32F2F; font-weight:700;"
             continue
@@ -387,6 +805,9 @@ def format_warning_display_text(warning_text, warning_color="", warning_threshol
             return "🔴 已續約"
         return "✅ 已續約"
 
+    if text_val == "寬限期":
+        return "🟤 寬限期"
+
     if "已到期" in text_val:
         return "🔴 已到期"
 
@@ -399,6 +820,97 @@ def format_warning_display_text(warning_text, warning_color="", warning_threshol
             pass
 
     return text_val
+
+
+def _merge_selected_into_options(raw_opts: list[str], selected_raw: list[str] | None) -> list[str]:
+    """保留目前已選值，避免時間條件變更時 multiselect 自動把已選項目清掉。"""
+    out = list(raw_opts or [])
+    for v in (selected_raw or []):
+        vv = str(v).strip()
+        if vv and vv not in out:
+            out.append(vv)
+    return out
+
+
+def _normalize_customer_year_key(customer, expiry_year):
+    cust = str(customer or "")
+    try:
+        yr = int(float(expiry_year))
+    except Exception:
+        yr = str(expiry_year)
+    return cust, yr
+
+
+def apply_warning_filter_to_datasets(
+    df_this: pd.DataFrame,
+    df_next: pd.DataFrame | None,
+    warning_selected: list[str] | None,
+) -> tuple[pd.DataFrame, pd.DataFrame | None]:
+    """
+    將 sidebar 的「未續約示警篩選」同步套用到右側所有資訊。
+    依今年度分組 Header 的示警狀態挑出 (最終客戶, 到期年度)，
+    再過濾今年度與其對應的明年度資料。
+    """
+    selected = [str(x).strip() for x in (warning_selected or []) if str(x).strip()]
+    if not selected:
+        return df_this, df_next
+
+    if df_this is None or df_this.empty:
+        return df_this, df_next
+
+    grouped = build_grouped_detail_report_v2(df_this, df_next=df_next)
+    if grouped is None or grouped.empty or '_row_type' not in grouped.columns:
+        return df_this.iloc[0:0].copy(), (df_next.iloc[0:0].copy() if df_next is not None else df_next)
+
+    headers = grouped[grouped['_row_type'].astype(str) == 'HEADER'].copy()
+    if headers.empty:
+        return df_this.iloc[0:0].copy(), (df_next.iloc[0:0].copy() if df_next is not None else df_next)
+
+    headers['未續約示警顯示'] = headers.apply(
+        lambda r: format_warning_display_text(
+            r.get('未續約示警', ''),
+            r.get('_warning_color', ''),
+            r.get('_warning_threshold', pd.NA),
+        ),
+        axis=1,
+    )
+
+    headers = headers[headers['未續約示警顯示'].astype(str).str.strip().isin(selected)].copy()
+    if headers.empty:
+        return df_this.iloc[0:0].copy(), (df_next.iloc[0:0].copy() if df_next is not None else df_next)
+
+    current_keys = set()
+    next_keys = set()
+    customers = set()
+    for _, row in headers.iterrows():
+        cust, yr = _normalize_customer_year_key(row.get('最終客戶', ''), row.get(EXPIRY_YEAR_COL, pd.NA))
+        current_keys.add((cust, yr))
+        customers.add(cust)
+        if isinstance(yr, int):
+            next_keys.add((cust, yr + 1))
+
+    def _filter_by_keys(df_in: pd.DataFrame | None, valid_keys: set[tuple]) -> pd.DataFrame | None:
+        if df_in is None:
+            return df_in
+        if df_in.empty:
+            return df_in.copy()
+        if not valid_keys:
+            return df_in.iloc[0:0].copy()
+        keys = df_in.apply(lambda r: _normalize_customer_year_key(r.get('最終客戶', ''), r.get(EXPIRY_YEAR_COL, pd.NA)), axis=1)
+        mask = keys.isin(valid_keys)
+        return df_in[mask].copy()
+
+    df_this_out = _filter_by_keys(df_this, current_keys)
+
+    if df_next is None:
+        return df_this_out, df_next
+
+    if next_keys:
+        df_next_out = _filter_by_keys(df_next, next_keys)
+    else:
+        df_next_out = df_next[df_next['最終客戶'].astype(str).isin(customers)].copy() if '最終客戶' in df_next.columns else df_next.copy()
+
+    return df_this_out, df_next_out
 
 
 def init_filter_defaults_from_data(df: pd.DataFrame):
@@ -448,6 +960,38 @@ def build_kpis(df: pd.DataFrame) -> dict:
     }
 
 
+def build_quarterly_kpi_df(df_this: pd.DataFrame, df_next: pd.DataFrame) -> pd.DataFrame:
+    """KPI 區塊下方四季圖表資料：本年度、明年度、差異（明年度 - 今年度）。"""
+    quarter_order = ["Q1", "Q2", "Q3", "Q4"]
+
+    def _quarter_sum(df_in: pd.DataFrame) -> pd.DataFrame:
+        if df_in is None or df_in.empty or "訂閱到期日" not in df_in.columns:
+            return pd.DataFrame({"季度": quarter_order, "金額": [0, 0, 0, 0]})
+
+        d = df_in.copy()
+        d["訂閱到期日"] = pd.to_datetime(d["訂閱到期日"], errors="coerce")
+        d = d[pd.notna(d["訂閱到期日"])].copy()
+        if d.empty:
+            return pd.DataFrame({"季度": quarter_order, "金額": [0, 0, 0, 0]})
+
+        d["季度"] = "Q" + d["訂閱到期日"].dt.quarter.astype(str)
+        d["金額"] = pd.to_numeric(d[ANALYSIS_VALUE_COL], errors="coerce").fillna(0)
+
+        q = d.groupby("季度", dropna=False)["金額"].sum().reindex(quarter_order, fill_value=0).reset_index()
+        return q
+
+    q_this = _quarter_sum(df_this).rename(columns={"金額": "本年度"})
+    q_next = _quarter_sum(df_next).rename(columns={"金額": "明年度"})
+
+    merged = q_this.merge(q_next, on="季度", how="outer").fillna(0)
+    merged["本年度"] = pd.to_numeric(merged["本年度"], errors="coerce").fillna(0)
+    merged["明年度"] = pd.to_numeric(merged["明年度"], errors="coerce").fillna(0)
+    merged["差異"] = merged["明年度"] - merged["本年度"]
+    merged["季度"] = pd.Categorical(merged["季度"], categories=quarter_order, ordered=True)
+    merged = merged.sort_values("季度").reset_index(drop=True)
+    return merged
+
+
 def top10_by(df: pd.DataFrame, group_col: str, value_col: str, top_n: int = 10, extra_col: str | None = None):
     g = df.groupby(group_col, dropna=False)[value_col].sum().reset_index()
     g[value_col] = pd.to_numeric(g[value_col], errors="coerce").fillna(0)
@@ -465,6 +1009,31 @@ def top10_by(df: pd.DataFrame, group_col: str, value_col: str, top_n: int = 10, 
 
 def uniq_options(df: pd.DataFrame, col: str):
     return sorted([x for x in df[col].dropna().astype(str).unique().tolist() if x != "nan"])
+
+
+def uniq_options_numeric(df: pd.DataFrame, col: str):
+    """側邊欄用：依數字前綴排序，純字串則照字母。回傳格式 '01. 項目名稱'"""
+    raw = sorted([x for x in df[col].dropna().astype(str).unique().tolist() if x != "nan"])
+    return [f"{i+1:02d}. {v}" for i, v in enumerate(raw)]
+
+
+def strip_numeric_prefix(labeled: list[str]) -> list[str]:
+    """將 '01. 項目名稱' 還原為 '項目名稱'"""
+    import re
+    return [re.sub(r"^\d+\.\s*", "", s) for s in labeled]
+
+
+def uniq_options_alpha(df: pd.DataFrame, col: str):
+    """右側主區域用：依英文字母 A-Z 排序，回傳格式 'A. 項目名稱'"""
+    raw = sorted([x for x in df[col].dropna().astype(str).unique().tolist() if x != "nan"])
+    # 以 A~Z 循環標記（若超過 26 項改用 AA, AB...）
+    def _label(i):
+        import string
+        alpha = string.ascii_uppercase
+        if i < 26:
+            return alpha[i]
+        return alpha[(i // 26) - 1] + alpha[i % 26]
+    return {_label(i): v for i, v in enumerate(raw)}
 
 
 def _clear_query_param_overlay_close():
@@ -515,6 +1084,13 @@ def reset_filters_to_defaults():
     st.session_state["action"] = []
     st.session_state["product"] = []
     st.session_state["sales"] = []
+
+    # 清除帶數字前綴的 labeled 版 session keys
+    for k in ["dealer_labeled", "qual_labeled", "customer_labeled", "action_labeled", "product_labeled", "sales_labeled"]:
+        st.session_state[k] = []
+
+    st.session_state["top30_dealer_pick"] = "（不套用 Top 30）"
+    st.session_state["warning_filter_pick"] = []
 
     st.session_state["selected_row_key"] = None
     st.session_state["email_text"] = ""
@@ -621,6 +1197,16 @@ def _get_effective_ranges(ui_state: dict) -> tuple[tuple[date | None, date | Non
     return this_rng, next_rng
 
 
+def _fmt_filter_values(vals) -> str:
+    vals = vals or []
+    if not vals:
+        return "全部"
+    vals = [str(v) for v in vals if str(v).strip()]
+    if not vals:
+        return "全部"
+    return "、".join(vals)
+
+
 def show_filter_ranges_if_enabled(ui_state: dict):
     """每個區塊標題下方顯示（若 sidebar checkbox 勾選）。"""
     if not st.session_state.get("show_filter_ranges", False):
@@ -629,6 +1215,17 @@ def show_filter_ranges_if_enabled(ui_state: dict):
     st.caption(
         f"篩選時間範圍｜本年度：{_fmt_d(this_rng[0])} ~ {_fmt_d(this_rng[1])}　｜　明年度：{_fmt_d(next_rng[0])} ~ {_fmt_d(next_rng[1])}"
     )
+    st.caption(
+        "目前篩選項目｜"
+        f"展碁業務：{_fmt_filter_values(ui_state.get('sales'))}　｜　"
+        f"經銷商：{_fmt_filter_values(ui_state.get('dealer'))}　｜　"
+        f"最終客戶：{_fmt_filter_values(ui_state.get('customer'))}　｜　"
+        f"資格：{_fmt_filter_values(ui_state.get('qual'))}　｜　"
+        f"訂閱動作：{_fmt_filter_values(ui_state.get('action'))}　｜　"
+        f"商品名稱：{_fmt_filter_values(ui_state.get('product'))}　｜　"
+        f"未續約示警：{_fmt_filter_values(st.session_state.get('warning_filter_pick', []))}"
+    )
+
 
 
 # ---------------------------
@@ -1518,7 +2115,13 @@ def render_grouped_table(df_source: pd.DataFrame, df_next: pd.DataFrame | None =
 # ---------------------------
 # 側邊欄
 # ---------------------------
-st.sidebar.title("⚙️ 篩選與匯入")
+st.sidebar.markdown("""
+<div style="text-align:center; padding: 0.8rem 0 1rem 0; border-bottom: 1px solid rgba(255,255,255,0.2); margin-bottom: 0.8rem;">
+    <div style="font-size: 1.5rem; margin-bottom: 0.3rem;">⚙️</div>
+    <div style="color: white; font-size: 0.95rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">篩選與匯入</div>
+    <div style="color: rgba(255,255,255,0.55); font-size: 0.7rem; margin-top: 0.2rem; letter-spacing: 0.5px;">Filter &amp; Import</div>
+</div>
+""", unsafe_allow_html=True)
 
 # ✅ 新增：顯示篩選時間範圍（放在左邊篩選與匯入最上方）
 st.session_state.setdefault("show_filter_ranges", False)
@@ -1572,7 +2175,31 @@ if st.query_params.get("overlay_close") == "1":
 # ---------------------------
 # 匯入 + 清洗（含進度）
 # ---------------------------
-st.title("📊 Weblink M365 續約精準行銷｜企業儀表板")
+st.markdown(_GLOBAL_CSS, unsafe_allow_html=True)
+
+# 頂部品牌 Header
+st.markdown("""
+<div style="
+    background: linear-gradient(135deg, #1a237e 0%, #1565c0 60%, #0288d1 100%);
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 24px rgba(21,101,192,0.25);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+">
+    <div style="font-size: 2.5rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">📊</div>
+    <div>
+        <div style="color: white; font-size: 1.5rem; font-weight: 900; letter-spacing: -0.5px; line-height: 1.2; font-family: 'Noto Sans TC', sans-serif;">
+            Weblink M365 續約精準行銷
+        </div>
+        <div style="color: rgba(255,255,255,0.75); font-size: 0.85rem; font-weight: 400; margin-top: 0.2rem; letter-spacing: 0.5px;">
+            Enterprise Subscription Dashboard &nbsp;·&nbsp; CSP 訂單分析平台
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 status = st.status("等待匯入 Excel…", expanded=True)
 progress = st.progress(0)
@@ -1601,125 +2228,312 @@ try:
     progress.progress(70)
     status.update(label="建立篩選選項…", state="running", expanded=True)
 
-    dealer_opts = uniq_options(df, "經銷商")
-    qual_opts = uniq_options(df, "資格")
-    customer_opts = uniq_options(df, "最終客戶")
-    action_opts = uniq_options(df, "訂閱動作")
-    product_opts = uniq_options(df, "商品名稱")
-    sales_opts = uniq_options(df, "展碁業務")
+    import re as _re
 
-    st.sidebar.divider()
-    st.sidebar.subheader("8) 多條件篩選（可多選）")
-    dealer_sel = st.sidebar.multiselect("經銷商", dealer_opts, default=st.session_state.get("dealer", []), key="dealer")
-    qual_sel = st.sidebar.multiselect("資格", qual_opts, default=st.session_state.get("qual", []), key="qual")
+    # ══════════════════════════════════════════════════════════════════════════
+    # 工具函式
+    # ══════════════════════════════════════════════════════════════════════════
+    def _make_num_opts(raw_list):
+        return [f"{i+1:02d}. {v}" for i, v in enumerate(raw_list)]
 
+    def _strip_num(labeled_list):
+        return [_re.sub(r"^\d+\.\s*", "", s) for s in labeled_list]
 
+    def _to_labeled(raw_sel, raw_opts, num_opts):
+        """原始值清單 → 帶編號標籤清單（供 multiselect default= 使用）"""
+        lmap = {r: n for r, n in zip(raw_opts, num_opts)}
+        return [lmap[r] for r in (raw_sel or []) if r in lmap]
 
-    # ---------------------------
-    # ✅ Top 30 最終客戶下拉選單（依「篩選範圍」金額由高至低）
-    # 規則：
-    # - 會套用：未來N月 / 訂閱到期日 / 訂單下單日 + 其他多選（經銷商/資格/訂閱動作/商品名稱/展碁業務）
-    # - 但「不套用最終客戶」本身，避免排名被自己限制住
-    # - 選到某客戶時：自動把 customer multiselect 設為該客戶（避免 session_state 錯誤用 on_change）
-    # ---------------------------
-    def _compute_top30_customers_by_filtered_scope(df_all: pd.DataFrame) -> list[str]:
-        if df_all is None or df_all.empty:
+    def _safe_list(v):
+        if v is None:
             return []
+        if isinstance(v, list):
+            return v
+        return [v]
 
-        # 以目前 sidebar 的 session_state 組出「用於 Top30 計算」的篩選條件
-        # ✅ 不套用 customer（最終客戶）本身
-        ui_state_for_top30 = {
+    def _sync_valid_selection(raw_key: str, labeled_key: str, raw_opts: list, num_opts: list):
+        """將 session_state 既有選擇修正為目前 options 內仍合法的值。"""
+        raw_selected = _safe_list(st.session_state.get(raw_key, []))
+        valid_raw = [x for x in raw_selected if x in raw_opts]
+        st.session_state[raw_key] = valid_raw
+
+        lmap = {r: n for r, n in zip(raw_opts, num_opts)}
+        st.session_state[labeled_key] = [lmap[x] for x in valid_raw if x in lmap]
+
+    def _sync_valid_labeled(raw_key: str, labeled_key: str, raw_opts: list, num_opts: list):
+        """保留目前已選的 raw 值並重建新標籤，避免時間範圍/未來月份切換後因編號改變而被清空。"""
+        labeled_selected = _safe_list(st.session_state.get(labeled_key, []))
+        raw_from_labeled = _strip_num(labeled_selected)
+        raw_selected = _safe_list(st.session_state.get(raw_key, []))
+
+        merged_raw = []
+        for v in raw_from_labeled + raw_selected:
+            vv = str(v).strip()
+            if vv and vv not in merged_raw:
+                merged_raw.append(vv)
+
+        valid_raw = [x for x in merged_raw if x in raw_opts]
+        lmap = {r: n for r, n in zip(raw_opts, num_opts)}
+        st.session_state[raw_key] = valid_raw
+        st.session_state[labeled_key] = [lmap[x] for x in valid_raw if x in lmap]
+
+    def _reset_top30_if_invalid(pick_key: str, valid_raw_opts: list):
+        """若 Top30 目前選到的值已不在新的 linked options 內，則自動重置。"""
+        picked_label = st.session_state.get(pick_key, "（不套用 Top 30）")
+        if picked_label == "（不套用 Top 30）":
+            return
+
+        picked_raw = _re.sub(r"^\d+｜", "", str(picked_label)).strip()
+        if picked_raw not in valid_raw_opts:
+            st.session_state[pick_key] = "（不套用 Top 30）"
+
+    def _set_single_pick_to_multiselect(raw_key: str, labeled_key: str, picked_raw, raw_opts: list, num_opts: list):
+        """將 Top30 selectbox 的單選結果同步到 multiselect state。"""
+        if not picked_raw:
+            st.session_state[raw_key] = []
+            st.session_state[labeled_key] = []
+            return
+
+        lmap = {r: n for r, n in zip(raw_opts, num_opts)}
+        st.session_state[raw_key] = [picked_raw]
+        st.session_state[labeled_key] = [lmap[picked_raw]] if picked_raw in lmap else []
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # 篩選選項邏輯
+    # 1) 多條件篩選清單：僅依「時間範圍」列出選項，不互相連動
+    # 2) Top 30 經銷商 / 最終客戶：僅依「時間範圍 + 展碁業務」排序變動
+    # ──────────────────────────────────────────────────────────────────────────
+    def _time_scope_state() -> dict:
+        return {
             "future_expiry_enabled": bool(st.session_state.get("future_expiry_enabled", False)),
             "future_expiry_months": int(st.session_state.get("future_expiry_months", 3)),
-            "expiry_range": (
-                st.session_state.get("expiry_from", None),
-                st.session_state.get("expiry_to", None),
-            ),
-            "order_range": (
-                st.session_state.get("order_from", None),
-                st.session_state.get("order_to", None),
-            ),
-            "dealer": st.session_state.get("dealer", []) or [],
-            "qual": st.session_state.get("qual", []) or [],
-            "customer": [],  # ✅ 關鍵：Top30 排名不受 customer 已選影響
-            "action": st.session_state.get("action", []) or [],
-            "product": st.session_state.get("product", []) or [],
-            "sales": st.session_state.get("sales", []) or [],
+            "expiry_range": (st.session_state.get("expiry_from"), st.session_state.get("expiry_to")),
+            "order_range": (st.session_state.get("order_from"), st.session_state.get("order_to")),
+            "dealer": [],
+            "qual": [],
+            "customer": [],
+            "action": [],
+            "product": [],
+            "sales": [],
         }
 
-        # 套用篩選（依你既有 apply_filters 邏輯）
-        df_scope = apply_filters(df_all, ui_state_for_top30)
+    def _time_and_sales_scope_state() -> dict:
+        s = _time_scope_state()
+        s["sales"] = st.session_state.get("sales", []) or []
+        return s
 
-        if df_scope is None or df_scope.empty or "最終客戶" not in df_scope.columns or ANALYSIS_VALUE_COL not in df_scope.columns:
+    def _options_by_scope(col: str, ui_scope: dict) -> list[str]:
+        if df is None or df.empty or col not in df.columns:
             return []
-
-        g = (
-            df_scope.groupby("最終客戶", dropna=False)[ANALYSIS_VALUE_COL]
-            .sum()
-            .reset_index()
-        )
-        g["最終客戶"] = g["最終客戶"].astype(str).replace({"nan": "未填"})
+        df_scope = apply_filters(df, ui_scope)
+        if df_scope is None or df_scope.empty or col not in df_scope.columns:
+            return []
+        g = df_scope.groupby(col, dropna=False)[ANALYSIS_VALUE_COL].sum().reset_index()
+        g[col] = g[col].astype(str).replace({"nan": "未填"})
         g[ANALYSIS_VALUE_COL] = pd.to_numeric(g[ANALYSIS_VALUE_COL], errors="coerce").fillna(0)
-        g = g.sort_values(ANALYSIS_VALUE_COL, ascending=False, kind="mergesort").head(30)
+        return g.sort_values(ANALYSIS_VALUE_COL, ascending=False, kind="mergesort")[col].tolist()
 
-        return g["最終客戶"].tolist()
+    def _base_opts(col: str) -> list[str]:
+        return _options_by_scope(col, _time_scope_state())
 
-    top30_customers = _compute_top30_customers_by_filtered_scope(df)
+    def _top30_opts(col: str) -> list[str]:
+        return _options_by_scope(col, _time_and_sales_scope_state())
 
-    # 下拉顯示文字：01｜xxx
-    top30_cust_labels = ["（不套用 Top 30）"]
-    top30_cust_label_to_value = {"（不套用 Top 30）": None}
-    for i, name in enumerate(top30_customers, 1):
-        label = f"{i:02d}｜{name}"
-        top30_cust_labels.append(label)
-        top30_cust_label_to_value[label] = name
+    # ══════════════════════════════════════════════════════════════════════════
+    # Step 1：所有多條件篩選選項只依時間範圍產生，不互相連動
+    # ══════════════════════════════════════════════════════════════════════════
+    sales_opts = _merge_selected_into_options(_base_opts("展碁業務"), st.session_state.get("sales", []))
+    dealer_opts = _merge_selected_into_options(_base_opts("經銷商"), st.session_state.get("dealer", []))
+    qual_opts = _merge_selected_into_options(_base_opts("資格"), st.session_state.get("qual", []))
+    customer_opts = _merge_selected_into_options(_base_opts("最終客戶"), st.session_state.get("customer", []))
+    action_opts = _merge_selected_into_options(_base_opts("訂閱動作"), st.session_state.get("action", []))
+    product_opts = _merge_selected_into_options(_base_opts("商品名稱"), st.session_state.get("product", []))
 
+    sales_num = _make_num_opts(sales_opts)
+    dealer_num = _make_num_opts(dealer_opts)
+    qual_num = _make_num_opts(qual_opts)
+    customer_num = _make_num_opts(customer_opts)
+    action_num = _make_num_opts(action_opts)
+    product_num = _make_num_opts(product_opts)
+
+    _sync_valid_labeled("sales", "sales_labeled", sales_opts, sales_num)
+    _sync_valid_labeled("dealer", "dealer_labeled", dealer_opts, dealer_num)
+    _sync_valid_labeled("qual", "qual_labeled", qual_opts, qual_num)
+    _sync_valid_labeled("customer", "customer_labeled", customer_opts, customer_num)
+    _sync_valid_labeled("action", "action_labeled", action_opts, action_num)
+    _sync_valid_labeled("product", "product_labeled", product_opts, product_num)
+
+    def _on_change_sales_labeled():
+        st.session_state["sales"] = _strip_num(st.session_state.get("sales_labeled", []) or [])
+
+    def _on_change_dealer_labeled():
+        dealer_raw = _strip_num(st.session_state.get("dealer_labeled", []) or [])
+        st.session_state["dealer"] = dealer_raw
+        picked_label = st.session_state.get("top30_dealer_pick", "（不套用 Top 30）")
+        picked_raw = _re.sub(r"^\d+｜", "", str(picked_label)).strip() if picked_label != "（不套用 Top 30）" else None
+        if picked_raw is not None and dealer_raw != [picked_raw]:
+            st.session_state["top30_dealer_pick"] = "（不套用 Top 30）"
+
+    def _on_change_customer_labeled():
+        customer_raw = _strip_num(st.session_state.get("customer_labeled", []) or [])
+        st.session_state["customer"] = customer_raw
+        picked_label = st.session_state.get("top30_customer_pick", "（不套用 Top 30）")
+        picked_raw = _re.sub(r"^\d+｜", "", str(picked_label)).strip() if picked_label != "（不套用 Top 30）" else None
+        if picked_raw is not None and customer_raw != [picked_raw]:
+            st.session_state["top30_customer_pick"] = "（不套用 Top 30）"
+
+    def _on_change_qual_labeled():
+        st.session_state["qual"] = _strip_num(st.session_state.get("qual_labeled", []) or [])
+
+    def _on_change_action_labeled():
+        st.session_state["action"] = _strip_num(st.session_state.get("action_labeled", []) or [])
+
+    def _on_change_product_labeled():
+        st.session_state["product"] = _strip_num(st.session_state.get("product_labeled", []) or [])
+
+    dealer_top30_opts = _top30_opts("經銷商")
+    customer_top30_opts = _top30_opts("最終客戶")
+    _reset_top30_if_invalid("top30_dealer_pick", dealer_top30_opts)
+    _reset_top30_if_invalid("top30_customer_pick", customer_top30_opts)
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # Step 2：顯示 sidebar 篩選欄位
+    # ══════════════════════════════════════════════════════════════════════════
+    st.sidebar.divider()
+    st.sidebar.subheader("多條件篩選（可多選）")
+
+    sales_sel_labeled = st.sidebar.multiselect(
+        "展碁業務",
+        options=sales_num,
+        key="sales_labeled",
+        on_change=_on_change_sales_labeled,
+        help="此欄位只依時間範圍列出選項；變更後會更新 Top 30 經銷商 / Top 30 最終客戶",
+    )
+    sales_sel = _strip_num(sales_sel_labeled)
+    st.session_state["sales"] = sales_sel
+
+    dealer_top30_opts = _top30_opts("經銷商")
+    customer_top30_opts = _top30_opts("最終客戶")
+    _reset_top30_if_invalid("top30_dealer_pick", dealer_top30_opts)
+    _reset_top30_if_invalid("top30_customer_pick", customer_top30_opts)
+
+    _top30_d_lbls = ["（不套用 Top 30）"] + [f"{i+1:02d}｜{v}" for i, v in enumerate(dealer_top30_opts[:30])]
+    _top30_d_map = {
+        "（不套用 Top 30）": None,
+        **{f"{i+1:02d}｜{v}": v for i, v in enumerate(dealer_top30_opts[:30])}
+    }
+    st.session_state.setdefault("top30_dealer_pick", "（不套用 Top 30）")
+
+    def _on_pick_top30_dealer():
+        picked = _top30_d_map.get(st.session_state.get("top30_dealer_pick", "（不套用 Top 30）"))
+        _set_single_pick_to_multiselect("dealer", "dealer_labeled", picked, dealer_opts, dealer_num)
+
+    st.sidebar.selectbox(
+        "Top 30 經銷商（依篩選範圍金額排序）",
+        options=_top30_d_lbls,
+        key="top30_dealer_pick",
+        on_change=_on_pick_top30_dealer,
+        help=f"依 {ANALYSIS_VALUE_COL} 排序，只套用時間範圍與展碁業務。選取後會同步寫入「經銷商」。",
+    )
+
+    dealer_sel_labeled = st.sidebar.multiselect(
+        "經銷商",
+        options=dealer_num,
+        key="dealer_labeled",
+        on_change=_on_change_dealer_labeled,
+        help="此欄位只依時間範圍列出選項，不與其他多選條件互相連動",
+    )
+    dealer_sel = _strip_num(dealer_sel_labeled)
+    st.session_state["dealer"] = dealer_sel
+
+    qual_sel_labeled = st.sidebar.multiselect(
+        "資格",
+        options=qual_num,
+        key="qual_labeled",
+        on_change=_on_change_qual_labeled,
+        help="此欄位只依時間範圍列出選項，不與其他多選條件互相連動",
+    )
+    qual_sel = _strip_num(qual_sel_labeled)
+    st.session_state["qual"] = qual_sel
+
+    _WARNING_OPTS = [
+        "🔴 已到期", "🟤 寬限期",
+        "🟡 15天", "🟠 30天", "🟣 45天", "🟤 60天", "⚫ 90天",
+        "🟢 已續約", "🔴 已續約",
+    ]
+    if not isinstance(st.session_state.get("warning_filter_pick"), list):
+        st.session_state["warning_filter_pick"] = []
+    st.sidebar.multiselect(
+        "未續約示警篩選（可多選）",
+        options=_WARNING_OPTS,
+        key="warning_filter_pick",
+        help="篩選 F) 今年度分組明細中特定示警狀態，可多選",
+    )
+
+    _top30_c_lbls = ["（不套用 Top 30）"] + [f"{i+1:02d}｜{v}" for i, v in enumerate(customer_top30_opts[:30])]
+    _top30_c_map = {
+        "（不套用 Top 30）": None,
+        **{f"{i+1:02d}｜{v}": v for i, v in enumerate(customer_top30_opts[:30])}
+    }
     st.session_state.setdefault("top30_customer_pick", "（不套用 Top 30）")
 
     def _on_pick_top30_customer():
-        picked_label = st.session_state.get("top30_customer_pick", "（不套用 Top 30）")
-        picked_customer = top30_cust_label_to_value.get(picked_label)
-
-        if not picked_customer:
-            return
-
-        # ✅ 套用：覆蓋「最終客戶」多選為單一客戶（最穩定、不干擾既有邏輯）
-        st.session_state["customer"] = [picked_customer]
+        picked = _top30_c_map.get(st.session_state.get("top30_customer_pick", "（不套用 Top 30）"))
+        _set_single_pick_to_multiselect("customer", "customer_labeled", picked, customer_opts, customer_num)
 
     st.sidebar.selectbox(
         "Top 30 最終客戶（依篩選範圍金額排序）",
-        options=top30_cust_labels,
+        options=_top30_c_lbls,
         key="top30_customer_pick",
         on_change=_on_pick_top30_customer,
-        help=f"依 {ANALYSIS_VALUE_COL} 加總，並套用目前篩選範圍與其他條件（不含最終客戶本身）計算。",
+        help=f"依 {ANALYSIS_VALUE_COL} 排序，只套用時間範圍與展碁業務。選取後會同步寫入「最終客戶」。",
     )
 
+    customer_sel_labeled = st.sidebar.multiselect(
+        "最終客戶",
+        options=customer_num,
+        key="customer_labeled",
+        on_change=_on_change_customer_labeled,
+        help="此欄位只依時間範圍列出選項，不與其他多選條件互相連動",
+    )
+    customer_sel = _strip_num(customer_sel_labeled)
+    st.session_state["customer"] = customer_sel
 
+    action_sel_labeled = st.sidebar.multiselect(
+        "訂閱動作",
+        options=action_num,
+        key="action_labeled",
+        on_change=_on_change_action_labeled,
+        help="此欄位只依時間範圍列出選項，不與其他多選條件互相連動",
+    )
+    action_sel = _strip_num(action_sel_labeled)
+    st.session_state["action"] = action_sel
 
+    product_sel_labeled = st.sidebar.multiselect(
+        "商品名稱",
+        options=product_num,
+        key="product_labeled",
+        on_change=_on_change_product_labeled,
+        help="此欄位只依時間範圍列出選項，不與其他多選條件互相連動",
+    )
+    product_sel = _strip_num(product_sel_labeled)
+    st.session_state["product"] = product_sel
 
-
-
-
-    customer_sel = st.sidebar.multiselect("最終客戶", customer_opts, default=st.session_state.get("customer", []), key="customer")
-    action_sel = st.sidebar.multiselect("訂閱動作", action_opts, default=st.session_state.get("action", []), key="action")
-    # ✅ 商品名稱篩選（可多選）
-    product_sel = st.sidebar.multiselect("商品名稱", product_opts, default=st.session_state.get("product", []), key="product")
-    sales_sel = st.sidebar.multiselect("展碁業務", sales_opts, default=st.session_state.get("sales", []), key="sales")
 
     progress.progress(90)
     status.update(label="套用篩選…", state="running", expanded=False)
 
     ui_state = {
         "future_expiry_enabled": bool(future_expiry_enabled),
-        "future_expiry_months": int(future_expiry_months),
+        "future_expiry_months":  int(future_expiry_months),
         "expiry_range": (expiry_from, expiry_to),
-        "order_range": (order_from, order_to),
-        "dealer": dealer_sel,
-        "qual": qual_sel,
+        "order_range":  (order_from,  order_to),
+        "dealer":   dealer_sel,
+        "qual":     qual_sel,
         "customer": customer_sel,
-        "action": action_sel,
-        "product": product_sel,
-        "sales": sales_sel,
+        "action":   action_sel,
+        "product":  product_sel,
+        "sales":    sales_sel,
     }
 
     # 今年度（原篩選）
@@ -1729,6 +2543,13 @@ try:
     ui_next = shift_ui_state_one_year(ui_state)
     base_today_next = date.today() + relativedelta(years=1)
     df_filtered_next = apply_filters(df, ui_next, base_today=base_today_next)
+
+    # ✅ 未續約示警篩選同步連動右方所有資訊
+    df_filtered, df_filtered_next = apply_warning_filter_to_datasets(
+        df_filtered,
+        df_filtered_next,
+        st.session_state.get("warning_filter_pick", []),
+    )
 
     progress.progress(100)
     status.update(label=f"完成 ✅ 目前顯示 {len(df_filtered):,} 筆資料", state="complete", expanded=False)
@@ -1740,1065 +2561,1823 @@ except Exception as e:
     status.update(label=f"處理失敗：{e}", state="error", expanded=True)
     st.stop()
 
-# ---------------------------
-# 9) KPI（本年度 + 明年度 + 差異）
-# ---------------------------
-st.subheader(f"9) KPI 指標（以「{ANALYSIS_VALUE_COL}」分析）")
-show_filter_ranges_if_enabled(ui_state)
+def render_csp_dashboard_v2_architecture(df_this: pd.DataFrame, df_next: pd.DataFrame, ui_state: dict):
+    """第二分頁：CSP 續約儀表板 v2 架構（完整可執行版 + 四季 YoY + 統計口徑說明）"""
 
-# 本年度（原篩選）
-kpis_this = build_kpis(df_filtered)
+    st.markdown("""
+    <div style="
+        background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 55%, #0ea5e9 100%);
+        border-radius: 20px;
+        padding: 1.55rem 1.9rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 14px 36px rgba(0,0,0,0.18);
+    ">
+        <div style="color:white; font-size:1.6rem; font-weight:900; letter-spacing:-0.4px;">
+            🚀 CSP 續約儀表板 v2 架構
+        </div>
+        <div style="color:rgba(255,255,255,0.85); font-size:0.95rem; margin-top:0.35rem; line-height:1.65;">
+            決策層 → 分析層 → 行動層｜不是只看報表，而是看風險、抓商機、排優先順序、直接行動。
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-# 明年度（原篩選範圍 +1 年；若無資料視為 0）
-kpis_next = build_kpis(df_filtered_next)
+    show_filter_ranges_if_enabled(ui_state)
 
-# 差異（明年度 - 今年度）
-kpis_diff = {
-    "筆數": kpis_next["筆數"] - kpis_this["筆數"],
-    "最終客戶數": kpis_next["最終客戶數"] - kpis_this["最終客戶數"],
-    "經銷商數": kpis_next["經銷商數"] - kpis_this["經銷商數"],
-    f"{ANALYSIS_VALUE_COL}合計": kpis_next[f"{ANALYSIS_VALUE_COL}合計"] - kpis_this[f"{ANALYSIS_VALUE_COL}合計"],
-    f"{ANALYSIS_VALUE_COL}平均每筆": kpis_next[f"{ANALYSIS_VALUE_COL}平均每筆"] - kpis_this[f"{ANALYSIS_VALUE_COL}平均每筆"],
-    f"{ANALYSIS_VALUE_COL}平均每客戶": kpis_next[f"{ANALYSIS_VALUE_COL}平均每客戶"] - kpis_this[f"{ANALYSIS_VALUE_COL}平均每客戶"],
-}
+    if df_this is None:
+        df_this = pd.DataFrame()
+    if df_next is None:
+        df_next = pd.DataFrame()
 
-st.caption("今年度（原篩選）")
-k1, k2, k3, k4, k5, k6 = st.columns(6)
-k1.metric("筆數", f"{kpis_this['筆數']:,}")
-k2.metric("最終客戶數", f"{kpis_this['最終客戶數']:,}")
-k3.metric("經銷商數", f"{kpis_this['經銷商數']:,}")
-k4.metric(f"{ANALYSIS_VALUE_COL}合計", format_money(kpis_this[f"{ANALYSIS_VALUE_COL}合計"]))
-k5.metric(f"{ANALYSIS_VALUE_COL}平均每筆", format_money(kpis_this[f"{ANALYSIS_VALUE_COL}平均每筆"]))
-k6.metric(f"{ANALYSIS_VALUE_COL}平均每客戶", format_money(kpis_this[f"{ANALYSIS_VALUE_COL}平均每客戶"]))
+    def _fmt_pct(v: float) -> str:
+        try:
+            return f"{float(v):,.1f}%"
+        except Exception:
+            return "0.0%"
 
-st.caption("明年度（原篩選範圍 +1 年；若無資料視為 0）")
-n1, n2, n3, n4, n5, n6 = st.columns(6)
-n1.metric("筆數", f"{kpis_next['筆數']:,}")
-n2.metric("最終客戶數", f"{kpis_next['最終客戶數']:,}")
-n3.metric("經銷商數", f"{kpis_next['經銷商數']:,}")
-n4.metric(f"{ANALYSIS_VALUE_COL}合計", format_money(kpis_next[f"{ANALYSIS_VALUE_COL}合計"]))
-n5.metric(f"{ANALYSIS_VALUE_COL}平均每筆", format_money(kpis_next[f"{ANALYSIS_VALUE_COL}平均每筆"]))
-n6.metric(f"{ANALYSIS_VALUE_COL}平均每客戶", format_money(kpis_next[f"{ANALYSIS_VALUE_COL}平均每客戶"]))
+    def _safe_first(x: pd.Series) -> str:
+        if x is None:
+            return ""
+        s = x.dropna().astype(str)
+        s = s[s.str.strip() != ""]
+        return s.iloc[0] if not s.empty else ""
 
-# ✅ 差異（明年度 - 今年度）數值以棕色呈現（你的需求）
-st.caption("差異（明年度 - 今年度）")
+    def _product_mix(x: pd.Series, limit: int = 3) -> str:
+        if x is None:
+            return ""
+        vals = pd.Series(x).dropna().astype(str)
+        vals = vals[vals.str.strip() != ""]
+        uniq = vals.unique().tolist()[:limit]
+        return " / ".join(uniq)
 
+    def _risk_level(days_left, next_amt: float, current_amt: float) -> str:
+        if next_amt > 0:
+            return "🟢 Safe"
+        if pd.isna(days_left):
+            return "⚪ 未知"
+        try:
+            d = int(days_left)
+        except Exception:
+            return "⚪ 未知"
+        if d < 0:
+            return "🔴 High"
+        if d <= 30:
+            return "🔴 High"
+        if d <= 60:
+            return "🟠 Medium"
+        if d <= 90:
+            return "🟡 Low"
+        return "🔵 Pipeline"
 
-def _kpi_diff_card(label: str, value_str: str):
+    def _loss_probability(days_left, next_amt: float, current_amt: float) -> int:
+        cur = float(current_amt or 0)
+        nxt = float(next_amt or 0)
+        if cur <= 0:
+            return 0
+        if nxt >= cur and nxt > 0:
+            return 10
+        if nxt > 0 and nxt < cur:
+            return 45
+        if pd.isna(days_left):
+            return 35
+        d = int(days_left)
+        if d < 0 and nxt == 0:
+            return 90
+        if d <= 30 and nxt == 0:
+            return 80
+        if d <= 60 and nxt == 0:
+            return 60
+        if d <= 90 and nxt == 0:
+            return 40
+        return 20
+
+    def _health_score(next_amt: float, current_amt: float, product_count: int, security_score: int) -> int:
+        score = 0
+        cur = float(current_amt or 0)
+        nxt = float(next_amt or 0)
+        if nxt > 0:
+            score += 40
+        if cur > 0 and nxt >= cur:
+            score += 20
+        elif nxt > 0:
+            score += 10
+        score += min(int(product_count or 0) * 5, 20)
+        score += min(int(security_score or 0) * 5, 20)
+        return int(min(score, 100))
+
+    def _security_presence(text: str) -> int:
+        s = str(text or "").lower()
+        score = 0
+        for k in ["defender", "purview", "intune", "entra", "azure ad", "aad", "p1", "p2"]:
+            if k in s:
+                score += 1
+        return score
+
+    def _month_sum(df_in: pd.DataFrame) -> pd.DataFrame:
+        if df_in is None or df_in.empty or "訂閱到期日" not in df_in.columns:
+            return pd.DataFrame({"月份": list(range(1, 13)), "金額": [0] * 12})
+        d = df_in.copy()
+        d["訂閱到期日"] = pd.to_datetime(d["訂閱到期日"], errors="coerce")
+        d = d[pd.notna(d["訂閱到期日"])].copy()
+        if d.empty:
+            return pd.DataFrame({"月份": list(range(1, 13)), "金額": [0] * 12})
+        d["月份"] = d["訂閱到期日"].dt.month
+        d["金額"] = pd.to_numeric(d[ANALYSIS_VALUE_COL], errors="coerce").fillna(0)
+        return d.groupby("月份", dropna=False)["金額"].sum().reindex(list(range(1, 13)), fill_value=0).reset_index()
+
+    this_total = float(pd.to_numeric(df_this.get(ANALYSIS_VALUE_COL), errors="coerce").fillna(0).sum()) if not df_this.empty and ANALYSIS_VALUE_COL in df_this.columns else 0.0
+    next_total = float(pd.to_numeric(df_next.get(ANALYSIS_VALUE_COL), errors="coerce").fillna(0).sum()) if not df_next.empty and ANALYSIS_VALUE_COL in df_next.columns else 0.0
+    renewed_amount = min(this_total, next_total)
+    renewal_rate = (renewed_amount / this_total * 100) if this_total > 0 else 0.0
+
+    if df_this.empty:
+        st.info("目前無資料可供建立 v2 分析。")
+        return
+
+    mart = (
+        df_this.groupby(["最終客戶", EXPIRY_YEAR_COL], dropna=False)
+        .agg(
+            今年金額=(ANALYSIS_VALUE_COL, "sum"),
+            最近到期日=("訂閱到期日", "min"),
+            最遠到期日=("訂閱到期日", "max"),
+            經銷商=("經銷商", _safe_first),
+            展碁業務=("展碁業務", _safe_first),
+            客戶微軟網域=("客戶微軟網域", _safe_first),
+            代表商品=("商品名稱", _safe_first),
+            商品組合=("商品名稱", _product_mix),
+            產品數=("商品名稱", pd.Series.nunique),
+            訂閱筆數=(ANALYSIS_VALUE_COL, "size"),
+        )
+        .reset_index()
+    )
+    mart["今年金額"] = pd.to_numeric(mart["今年金額"], errors="coerce").fillna(0)
+    mart["明年金額"] = 0.0
+
+    next_lookup = build_group_renewal_lookup(df_next)
+    next_amounts, days_lefts, risk_levels, loss_probs = [], [], [], []
+    security_scores, health_scores, suggestions, risk_reasons, status_labels = [], [], [], [], []
+    for _, row in mart.iterrows():
+        cust = str(row.get("最終客戶", "") or "")
+        yr = row.get(EXPIRY_YEAR_COL, pd.NA)
+        try:
+            next_key = int(float(yr)) + 1
+        except Exception:
+            next_key = str(yr)
+        nxt = float((next_lookup.get((cust, next_key)) or {}).get("amount", 0) or 0)
+        next_amounts.append(nxt)
+
+        min_exp = pd.to_datetime(row.get("最近到期日", pd.NaT), errors="coerce")
+        dl = (min_exp.date() - date.today()).days if pd.notna(min_exp) else pd.NA
+        days_lefts.append(dl)
+        rl = _risk_level(dl, nxt, row.get("今年金額", 0))
+        risk_levels.append(rl)
+        lp = _loss_probability(dl, nxt, row.get("今年金額", 0))
+        loss_probs.append(lp)
+
+        security_score = _security_presence(str(row.get("商品組合", "")) + " " + str(row.get("代表商品", "")))
+        security_scores.append(security_score)
+        health_scores.append(_health_score(nxt, row.get("今年金額", 0), row.get("產品數", 0), security_score))
+
+        if nxt > 0:
+            status_labels.append("已續約")
+        elif pd.notna(dl) and int(dl) < 0:
+            status_labels.append("已到期未續")
+        elif pd.notna(dl) and int(dl) <= 30:
+            status_labels.append("30天內待追")
+        elif pd.notna(dl) and int(dl) <= 60:
+            status_labels.append("60天內待追")
+        elif pd.notna(dl) and int(dl) <= 90:
+            status_labels.append("90天內暖身")
+        else:
+            status_labels.append("長天期 Pipeline")
+
+        prod = str(row.get("代表商品", "") or "")
+        mix = str(row.get("商品組合", "") or "")
+        cat_row = df_this[df_this["最終客戶"].astype(str) == cust]
+        cat = _safe_first(cat_row["產品分類"]) if not cat_row.empty and "產品分類" in cat_row.columns else ""
+        recs = _pick_recommendations(prod or mix, cat)
+        rec_names = [x[0] for x in recs.get("upsell", [])[:1]] + [x[0] for x in recs.get("cross_sell", [])[:1]]
+        suggestions.append(" / ".join([x for x in rec_names if x]) or "維持續約追蹤")
+
+        reason = []
+        if nxt > 0:
+            reason.append("已有明年度對應續約")
+        else:
+            if pd.notna(dl):
+                if int(dl) < 0:
+                    reason.append("已超過到期日")
+                elif int(dl) <= 30:
+                    reason.append("30天內到期但尚無明年度金額")
+                elif int(dl) <= 60:
+                    reason.append("60天內到期且尚未續約")
+                elif int(dl) <= 90:
+                    reason.append("90天內到期，應提前暖身")
+            if row.get("今年金額", 0) > 0:
+                reason.append(f"今年金額 {format_money(row.get('今年金額', 0))}")
+        risk_reasons.append("；".join(reason))
+
+    mart["明年金額"] = next_amounts
+    mart["差異金額"] = mart["明年金額"] - mart["今年金額"]
+    mart["續約剩餘天數"] = days_lefts
+    mart["續約風險等級"] = risk_levels
+    mart["流失機率"] = loss_probs
+    mart["客戶健康度"] = health_scores
+    mart["建議動作"] = suggestions
+    mart["風險原因"] = risk_reasons
+    mart["狀態"] = status_labels
+    mart["商機類型"] = mart["建議動作"].apply(lambda x: "Upsell/Cross-sell" if x and x != "維持續約追蹤" else "Renewal")
+
+    high_medium = mart[mart["續約風險等級"].isin(["🔴 High", "🟠 Medium"])]
+    risk_amount = float(high_medium["今年金額"].sum()) if not high_medium.empty else 0.0
+    lost_amount = float(mart[(mart["流失機率"] >= 80) & (mart["明年金額"] <= 0)]["今年金額"].sum()) if not mart.empty else 0.0
+    pipeline_amount = float(mart[mart["續約風險等級"].isin(["🟡 Low", "🔵 Pipeline"])]["今年金額"].sum()) if not mart.empty else 0.0
+    upsell_amount = float(mart[mart["商機類型"] == "Upsell/Cross-sell"]["今年金額"].sum()) if not mart.empty else 0.0
+    high_customer_cnt = int(mart[mart["續約風險等級"] == "🔴 High"]["最終客戶"].astype(str).nunique()) if not mart.empty else 0
+    high_reseller_cnt = int(mart[mart["續約風險等級"] == "🔴 High"]["經銷商"].astype(str).nunique()) if not mart.empty else 0
+    high_sales_cnt = int(mart[mart["續約風險等級"] == "🔴 High"]["展碁業務"].astype(str).nunique()) if not mart.empty else 0
+
+    st.markdown("## 1️⃣ Executive Summary")
+    s1, s2, s3, s4 = st.columns(4)
+    s1.metric("今年訂閱金額", format_money(this_total))
+    s2.metric("明年度已對應金額", format_money(next_total))
+    s3.metric("Renewal Rate", _fmt_pct(renewal_rate))
+    s4.metric("Revenue at Risk", format_money(risk_amount))
+
+    s5, s6, s7, s8 = st.columns(4)
+    s5.metric("Upsell Potential", format_money(upsell_amount))
+    s6.metric("Lost Revenue", format_money(lost_amount))
+    s7.metric("Pipeline", format_money(pipeline_amount))
+    s8.metric("高風險客戶 / 經銷商 / 業務", f"{high_customer_cnt} / {high_reseller_cnt} / {high_sales_cnt}")
+
+    top_risk_customer = "-"
+    if not high_medium.empty:
+        tr = high_medium.sort_values(["今年金額", "流失機率"], ascending=[False, False]).iloc[0]
+        top_risk_customer = f"{tr['最終客戶']}（{format_money(tr['今年金額'])}）"
+    top_growth_customer = "-"
+    grow_df = mart[mart["差異金額"] > 0].sort_values("差異金額", ascending=False)
+    if not grow_df.empty:
+        gr = grow_df.iloc[0]
+        top_growth_customer = f"{gr['最終客戶']}（+{format_money(gr['差異金額'])}）"
+    top_risk_reseller = "-"
+    if not high_medium.empty:
+        rr = high_medium.groupby("經銷商", dropna=False)["今年金額"].sum().reset_index().sort_values("今年金額", ascending=False)
+        if not rr.empty:
+            top_risk_reseller = f"{rr.iloc[0]['經銷商']}（{format_money(rr.iloc[0]['今年金額'])}）"
+
     st.markdown(
         f"""
-        <div style="padding: 6px 2px;">
-            <div style="font-size: 0.85rem; opacity: 0.75; line-height: 1.1;">{label}</div>
-            <div style="font-size: 1.55rem; font-weight: 800; color: {BROWN_COLOR}; line-height: 1.2;">{value_str}</div>
+        <div style="background:white; border:1px solid rgba(0,0,0,0.06); border-radius:14px; padding:0.95rem 1.1rem; box-shadow:0 2px 10px rgba(0,0,0,0.05); margin-top:0.25rem; line-height:1.8;">
+            <div style="font-size:0.82rem; color:#546e7a; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:0.35rem;">管理摘要</div>
+            <div style="font-size:0.95rem; color:#263238;">
+                目前本年度應續約金額為 <b>{format_money(this_total)}</b>，明年度已對應 <b>{format_money(next_total)}</b>，續約率 <b>{_fmt_pct(renewal_rate)}</b>。<br>
+                其中高 / 中風險金額合計 <b>{format_money(risk_amount)}</b>，已流失或極高流失風險金額約 <b>{format_money(lost_amount)}</b>。<br>
+                建議主管優先關注：<b>高風險客戶 {top_risk_customer}</b>、<b>高風險經銷商 {top_risk_reseller}</b>；若要推成長，優先查看 <b>{top_growth_customer}</b>。
+            </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
+    with st.expander("查看分頁 2 數據統計方式 / KPI 計算口徑", expanded=False):
+        stats_df = pd.DataFrame([
+            {"指標/欄位": "今年訂閱金額", "統計方式": "分頁 2 目前篩選後 df_this 的『成交價未稅小計』加總", "補充": "以目前篩選範圍視為今年度母體"},
+            {"指標/欄位": "明年度已對應金額", "統計方式": "df_next 的『成交價未稅小計』加總", "補充": "df_next = 原篩選條件 +1 年"},
+            {"指標/欄位": "Renewal Rate", "統計方式": "min(今年訂閱金額, 明年度已對應金額) / 今年訂閱金額", "補充": "避免明年度金額高於今年時續約率超過 100%"},
+            {"指標/欄位": "Revenue at Risk", "統計方式": "客戶年度 mart 中屬於 🔴 High 或 🟠 Medium 的今年金額加總", "補充": "屬管理優先追蹤的風險池"},
+            {"指標/欄位": "Lost Revenue", "統計方式": "流失機率 >= 80% 且 明年金額 <= 0 的今年金額加總", "補充": "視為已流失或極高流失風險"},
+            {"指標/欄位": "Pipeline", "統計方式": "續約風險等級屬 🟡 Low 或 🔵 Pipeline 的今年金額加總", "補充": "屬可提前暖身/追蹤案件"},
+            {"指標/欄位": "Upsell Potential", "統計方式": "建議動作不為『維持續約追蹤』且商機類型 = Upsell/Cross-sell 的今年金額加總", "補充": "為可延伸提案的商機池"},
+            {"指標/欄位": "續約剩餘天數", "統計方式": "最近到期日 - 今日", "補充": "以客戶 + 到期年度的最早到期日為主"},
+            {"指標/欄位": "續約風險等級", "統計方式": "已續約=🟢 Safe；<=30天=🔴；<=60天=🟠；<=90天=🟡；>90天=🔵", "補充": "若明年金額 > 0 優先視為已續約"},
+            {"指標/欄位": "流失機率", "統計方式": "依剩餘天數與明年金額規則評分：已到期且未續=90%、30天內未續=80%、60天內未續=60%、90天內未續=40%", "補充": "規則引擎版，可再改成模型版"},
+            {"指標/欄位": "客戶健康度", "統計方式": "是否續約 40 分 + 金額成長 20 分 + 產品數最多 20 分 + Security 關鍵字最多 20 分", "補充": "滿分 100 分"},
+            {"指標/欄位": "四季 YOY", "統計方式": "依訂閱到期日季別將今年/明年金額分到 Q1~Q4，差異 = 明年 - 今年，YOY% = 差異 / 今年", "補充": "今年為 0 時，YOY% 顯示 0% 避免除零"},
+            {"指標/欄位": "月趨勢", "統計方式": "每月到期金額 = df_this 依到期月份加總；每月續約金額 = df_next 依到期月份加總；每月流失金額 = max(到期-續約, 0)", "補充": "均以成交價未稅小計統計"},
+        ])
+        st.dataframe(stats_df, use_container_width=True, hide_index=True)
 
-d1, d2, d3, d4, d5, d6 = st.columns(6)
-with d1:
-    _kpi_diff_card("筆數", format_signed_int(kpis_diff["筆數"]))
-with d2:
-    _kpi_diff_card("最終客戶數", format_signed_int(kpis_diff["最終客戶數"]))
-with d3:
-    _kpi_diff_card("經銷商數", format_signed_int(kpis_diff["經銷商數"]))
-with d4:
-    _kpi_diff_card(f"{ANALYSIS_VALUE_COL}合計", format_signed_money(kpis_diff[f"{ANALYSIS_VALUE_COL}合計"]))
-with d5:
-    _kpi_diff_card(f"{ANALYSIS_VALUE_COL}平均每筆", format_signed_money(kpis_diff[f"{ANALYSIS_VALUE_COL}平均每筆"]))
-with d6:
-    _kpi_diff_card(f"{ANALYSIS_VALUE_COL}平均每客戶", format_signed_money(kpis_diff[f"{ANALYSIS_VALUE_COL}平均每客戶"]))
+    st.divider()
+    st.markdown("## 2️⃣ 續約風險預警")
+    c_left, c_right = st.columns([1, 1.35])
 
-st.divider()
+    risk_bucket = mart.groupby("續約風險等級", dropna=False).agg(客戶數=("最終客戶", "nunique"), 金額=("今年金額", "sum")).reset_index()
+    order = ["🔴 High", "🟠 Medium", "🟡 Low", "🔵 Pipeline", "🟢 Safe", "⚪ 未知"]
+    risk_bucket["續約風險等級"] = pd.Categorical(risk_bucket["續約風險等級"], categories=order, ordered=True)
+    risk_bucket = risk_bucket.sort_values("續約風險等級").reset_index(drop=True)
 
-# ---------------------------
-# 10) Top 10（續約客戶 / 經銷商）
-# ---------------------------
-st.subheader(f"10) Top 10 續約客戶（以 {ANALYSIS_VALUE_COL} 合計排序）")
-show_filter_ranges_if_enabled(ui_state)
+    with c_left:
+        st.markdown("#### Risk Score 分級")
+        st.dataframe(risk_bucket.style.format({"金額": _safe_thousands_formatter, "客戶數": _safe_thousands_formatter}), use_container_width=True, hide_index=True)
+        loss_top = mart.sort_values(["流失機率", "今年金額"], ascending=[False, False]).head(10)
+        st.markdown("#### Top 10 流失風險")
+        st.dataframe(loss_top[["最終客戶", "經銷商", "展碁業務", "代表商品", "今年金額", "流失機率", "續約風險等級"]].style.format({"今年金額": _safe_thousands_formatter}), use_container_width=True, hide_index=True)
 
-top10_customer_this = top10_by(df_filtered, "最終客戶", ANALYSIS_VALUE_COL, top_n=10, extra_col="商品名稱").rename(
-    columns={ANALYSIS_VALUE_COL: "需約金額"}
-)
-top10_customer_this["需約金額"] = pd.to_numeric(top10_customer_this["需約金額"], errors="coerce").fillna(0)
+    with c_right:
+        chart = alt.Chart(risk_bucket).mark_bar(cornerRadiusTopLeft=6, cornerRadiusTopRight=6).encode(
+            x=alt.X("續約風險等級:N", sort=order, title="風險等級"),
+            y=alt.Y("金額:Q", title="金額"),
+            color=alt.Color("續約風險等級:N", scale=alt.Scale(domain=order, range=["#d32f2f", "#f57c00", "#c9a227", "#1976d2", "#2e7d32", "#90a4ae"]), legend=None),
+            tooltip=["續約風險等級", alt.Tooltip("客戶數:Q", title="客戶數", format=",.0f"), alt.Tooltip("金額:Q", title="金額", format=",.0f")],
+        ).properties(height=260)
+        st.altair_chart(chart, use_container_width=True)
 
-# 明年度續約金額（同客戶，範圍為原篩選 +1 年；若無視為 0）
-top10_customer_next_all = (
-    df_filtered_next.groupby("最終客戶", dropna=False)[ANALYSIS_VALUE_COL]
-    .sum()
-    .reset_index()
-    .rename(columns={ANALYSIS_VALUE_COL: "明年度續約金額"})
-)
-top10_customer_next_all["明年度續約金額"] = pd.to_numeric(top10_customer_next_all["明年度續約金額"], errors="coerce").fillna(0)
+        mart_plot = mart.copy()
+        bubble = alt.Chart(mart_plot).mark_circle(opacity=0.7).encode(
+            x=alt.X("續約剩餘天數:Q", title="續約剩餘天數"),
+            y=alt.Y("今年金額:Q", title="今年金額"),
+            size=alt.Size("流失機率:Q", title="流失機率"),
+            color=alt.Color("續約風險等級:N", scale=alt.Scale(domain=order, range=["#d32f2f", "#f57c00", "#c9a227", "#1976d2", "#2e7d32", "#90a4ae"])),
+            tooltip=["最終客戶", "經銷商", "展碁業務", alt.Tooltip("今年金額:Q", format=",.0f"), "續約風險等級", alt.Tooltip("流失機率:Q", format=",.0f")],
+        ).properties(height=290)
+        st.altair_chart(bubble, use_container_width=True)
 
-top10_customer = top10_customer_this.merge(top10_customer_next_all, on="最終客戶", how="left")
-top10_customer["明年度續約金額"] = pd.to_numeric(top10_customer["明年度續約金額"], errors="coerce").fillna(0)
+    r1, r2 = st.columns(2)
+    with r1:
+        reseller_risk = mart.groupby("經銷商", dropna=False).agg(風險金額=("今年金額", lambda s: float(s.sum())), 高風險客戶數=("續約風險等級", lambda s: int(pd.Series(s).isin(["🔴 High", "🟠 Medium"]).sum()))).reset_index()
+        reseller_risk = reseller_risk.sort_values(["高風險客戶數", "風險金額"], ascending=[False, False]).head(10)
+        st.markdown("#### 高風險經銷商")
+        st.dataframe(reseller_risk.style.format({"風險金額": _safe_thousands_formatter}), use_container_width=True, hide_index=True)
+    with r2:
+        sales_risk = mart.groupby("展碁業務", dropna=False).agg(風險金額=("今年金額", lambda s: float(s.sum())), 高風險案件數=("續約風險等級", lambda s: int(pd.Series(s).isin(["🔴 High", "🟠 Medium"]).sum()))).reset_index()
+        sales_risk = sales_risk.sort_values(["高風險案件數", "風險金額"], ascending=[False, False]).head(10)
+        st.markdown("#### 高風險業務")
+        st.dataframe(sales_risk.style.format({"風險金額": _safe_thousands_formatter}), use_container_width=True, hide_index=True)
 
-# 差異金額 = 明年度續約金額 - 今年度需約金額
-top10_customer["差異金額"] = top10_customer["明年度續約金額"] - top10_customer["需約金額"]
+    st.divider()
+    st.markdown("## 3️⃣ KPI 與年度趨勢")
 
-# 欄位順序：需約金額後 -> 明年度續約金額 -> 差異金額
-cols = top10_customer.columns.tolist()
-desired = ["最終客戶", "需約金額", "明年度續約金額", "差異金額"]
-ordered_cols = [c for c in desired if c in cols] + [c for c in cols if c not in set(desired)]
-top10_customer = top10_customer[ordered_cols]
+    month_order = list(range(1, 13))
+    expiry_trend = _month_sum(df_this).rename(columns={"金額": "到期金額"})
+    renewal_trend = _month_sum(df_next).rename(columns={"金額": "續約金額"})
+    lost_trend = expiry_trend.merge(renewal_trend, on="月份", how="left").fillna(0)
+    lost_trend["流失金額"] = (lost_trend["到期金額"] - lost_trend["續約金額"]).clip(lower=0)
 
-# ✅ 差異金額欄位名稱棕色（表頭）
-cust_styler = top10_customer.style.format(
-    {
-        "需約金額": _safe_thousands_formatter,
-        "明年度續約金額": _safe_thousands_formatter,
-        "差異金額": _safe_thousands_formatter,
-    }
-).set_table_styles(_style_header_color_for_column(top10_customer, "差異金額", BROWN_COLOR), overwrite=False)
+    lt_df = pd.concat([
+        lost_trend[["月份", "到期金額"]].rename(columns={"到期金額": "金額"}).assign(指標="每月到期金額"),
+        lost_trend[["月份", "續約金額"]].rename(columns={"續約金額": "金額"}).assign(指標="每月續約金額"),
+        lost_trend[["月份", "流失金額"]].rename(columns={"流失金額": "金額"}).assign(指標="每月流失金額"),
+    ], ignore_index=True)
 
-st.dataframe(cust_styler, use_container_width=True, hide_index=True)
+    k_left, k_right = st.columns([1.25, 1])
+    with k_left:
+        line = alt.Chart(lt_df).mark_line(point=True).encode(
+            x=alt.X("月份:O", sort=month_order, title="月份"),
+            y=alt.Y("金額:Q", title="金額"),
+            color=alt.Color("指標:N", scale=alt.Scale(domain=["每月到期金額", "每月續約金額", "每月流失金額"], range=["#1565c0", "#2e7d32", "#d32f2f"])),
+            tooltip=["指標", "月份", alt.Tooltip("金額:Q", format=",.0f")],
+        ).properties(height=310)
+        st.markdown("#### Renewal vs Expiry")
+        st.altair_chart(line, use_container_width=True)
+    with k_right:
+        funnel_df = pd.DataFrame([
+            {"階段": "Total", "金額": this_total},
+            {"階段": "Renewed", "金額": renewed_amount},
+            {"階段": "Pending", "金額": max(this_total - renewed_amount - lost_amount, 0)},
+            {"階段": "Lost", "金額": lost_amount},
+        ])
+        funnel = alt.Chart(funnel_df).mark_bar(cornerRadiusTopLeft=6, cornerRadiusTopRight=6).encode(
+            x=alt.X("階段:N", title="續約漏斗"),
+            y=alt.Y("金額:Q", title="金額"),
+            color=alt.Color("階段:N", scale=alt.Scale(domain=["Total", "Renewed", "Pending", "Lost"], range=["#1565c0", "#2e7d32", "#f57c00", "#d32f2f"]), legend=None),
+            tooltip=["階段", alt.Tooltip("金額:Q", format=",.0f")],
+        ).properties(height=150)
+        st.markdown("#### Funnel")
+        st.altair_chart(funnel, use_container_width=True)
 
-st.subheader(f"10) Top 10 經銷商（以 {ANALYSIS_VALUE_COL} 合計排序）")
-show_filter_ranges_if_enabled(ui_state)
+        pipe_df = pd.DataFrame([
+            {"區段": "30天", "金額": float(mart[(mart["續約剩餘天數"].fillna(999) <= 30) & (mart["明年金額"] <= 0)]["今年金額"].sum())},
+            {"區段": "60天", "金額": float(mart[(mart["續約剩餘天數"].fillna(999) > 30) & (mart["續約剩餘天數"].fillna(999) <= 60) & (mart["明年金額"] <= 0)]["今年金額"].sum())},
+            {"區段": "90天", "金額": float(mart[(mart["續約剩餘天數"].fillna(999) > 60) & (mart["續約剩餘天數"].fillna(999) <= 90) & (mart["明年金額"] <= 0)]["今年金額"].sum())},
+        ])
+        pipe = alt.Chart(pipe_df).mark_bar(cornerRadiusTopLeft=6, cornerRadiusTopRight=6).encode(
+            x=alt.X("區段:N", title="Pipeline"),
+            y=alt.Y("金額:Q", title="待處理金額"),
+            color=alt.Color("區段:N", scale=alt.Scale(domain=["30天", "60天", "90天"], range=["#d32f2f", "#f57c00", "#c9a227"]), legend=None),
+            tooltip=["區段", alt.Tooltip("金額:Q", format=",.0f")],
+        ).properties(height=150)
+        st.altair_chart(pipe, use_container_width=True)
 
-# 本年度 Top10 經銷商（金額）
-top10_dealer_this = top10_by(df_filtered, "經銷商", ANALYSIS_VALUE_COL, top_n=10).rename(columns={ANALYSIS_VALUE_COL: "金額"})
-top10_dealer_this["金額"] = pd.to_numeric(top10_dealer_this["金額"], errors="coerce").fillna(0)
+    st.markdown("#### 四季 YOY 分析")
+    quarterly_kpi = build_quarterly_kpi_df(df_this, df_next)
+    quarterly_kpi["YOY%"] = quarterly_kpi.apply(lambda r: ((float(r["差異"]) / float(r["本年度"]) * 100) if float(r["本年度"]) != 0 else 0), axis=1)
+    q_line_df = pd.concat([
+        quarterly_kpi[["季度", "本年度"]].rename(columns={"本年度": ANALYSIS_VALUE_COL}).assign(年度="本年度"),
+        quarterly_kpi[["季度", "明年度"]].rename(columns={"明年度": ANALYSIS_VALUE_COL}).assign(年度="明年度"),
+    ], ignore_index=True)
 
-# ✅ 明年度續約金額（原篩選範圍 +1 年；若無視為 0）
-top10_dealer_next_all = (
-    df_filtered_next.groupby("經銷商", dropna=False)[ANALYSIS_VALUE_COL]
-    .sum()
-    .reset_index()
-    .rename(columns={ANALYSIS_VALUE_COL: "明年度續約金額"})
-)
-top10_dealer_next_all["明年度續約金額"] = pd.to_numeric(top10_dealer_next_all["明年度續約金額"], errors="coerce").fillna(0)
-
-top10_dealer = top10_dealer_this.merge(top10_dealer_next_all, on="經銷商", how="left")
-top10_dealer["明年度續約金額"] = pd.to_numeric(top10_dealer["明年度續約金額"], errors="coerce").fillna(0)
-
-# ✅ 差異金額 = 明年度續約金額 - 今年度金額
-top10_dealer["差異金額"] = top10_dealer["明年度續約金額"] - top10_dealer["金額"]
-
-# 欄位順序：金額 -> 明年度續約金額 -> 差異金額
-dealer_cols = top10_dealer.columns.tolist()
-dealer_desired = ["經銷商", "金額", "明年度續約金額", "差異金額"]
-dealer_ordered = [c for c in dealer_desired if c in dealer_cols] + [c for c in dealer_cols if c not in set(dealer_desired)]
-top10_dealer = top10_dealer[dealer_ordered]
-
-# ✅ 差異金額欄位名稱棕色（表頭）
-dealer_styler = top10_dealer.style.format(
-    {
-        "金額": _safe_thousands_formatter,
-        "明年度續約金額": _safe_thousands_formatter,
-        "差異金額": _safe_thousands_formatter,
-    }
-).set_table_styles(_style_header_color_for_column(top10_dealer, "差異金額", BROWN_COLOR), overwrite=False)
-
-st.dataframe(dealer_styler, use_container_width=True, hide_index=True)
-
-st.divider()
-
-# ---------------------------
-# 圖表
-# ---------------------------
-st.subheader(f"11) 圖表（以「{ANALYSIS_VALUE_COL}」分析）")
-show_filter_ranges_if_enabled(ui_state)
-
-c1, c3 = st.columns(2)
-
-with c1:
-    st.caption("Bar：Top 10 續約客戶（需約金額）")
-    if top10_customer.empty:
-        st.info("無資料可顯示")
-    else:
-        tmp = top10_customer[["最終客戶", "需約金額"]].rename(columns={"需約金額": ANALYSIS_VALUE_COL}).copy()
-        tmp[ANALYSIS_VALUE_COL] = pd.to_numeric(tmp[ANALYSIS_VALUE_COL], errors="coerce").fillna(0)
-        st.altair_chart(
-            alt.Chart(tmp)
-            .mark_bar()
-            .encode(
-                x=alt.X(ANALYSIS_VALUE_COL, title="金額"),
-                y=alt.Y("最終客戶:N", sort="-x", title="最終客戶"),
-                color=alt.Color("最終客戶:N", legend=None),
-                tooltip=["最終客戶", alt.Tooltip(ANALYSIS_VALUE_COL, format=",.0f")],
+    q1, q2 = st.columns([1.2, 1])
+    with q1:
+        q_combo = alt.layer(
+            alt.Chart(q_line_df).mark_bar(cornerRadiusTopLeft=4, cornerRadiusTopRight=4).encode(
+                x=alt.X("季度:O", sort=["Q1", "Q2", "Q3", "Q4"], title="季度"),
+                y=alt.Y(f"{ANALYSIS_VALUE_COL}:Q", title="金額"),
+                xOffset=alt.XOffset("年度:N"),
+                color=alt.Color("年度:N", scale=alt.Scale(domain=["本年度", "明年度"], range=["#ef6c00", "#1565c0"])),
+                tooltip=["年度", "季度", alt.Tooltip(ANALYSIS_VALUE_COL, format=",.0f")],
+            ),
+            alt.Chart(quarterly_kpi).mark_line(point=True, strokeWidth=3).encode(
+                x=alt.X("季度:O", sort=["Q1", "Q2", "Q3", "Q4"]),
+                y=alt.Y("差異:Q", title="差異（明-今）"),
+                color=alt.value("#2e7d32"),
+                tooltip=["季度", alt.Tooltip("本年度:Q", format=",.0f"), alt.Tooltip("明年度:Q", format=",.0f"), alt.Tooltip("差異:Q", format=",.0f")],
             )
-            .properties(height=320),
+        ).resolve_scale(y='independent').properties(height=320)
+        st.altair_chart(q_combo, use_container_width=True)
+    with q2:
+        q_yoy = alt.Chart(quarterly_kpi).mark_bar(cornerRadiusTopLeft=4, cornerRadiusTopRight=4).encode(
+            x=alt.X("季度:O", sort=["Q1", "Q2", "Q3", "Q4"], title="季度"),
+            y=alt.Y("YOY%:Q", title="YOY%"),
+            color=alt.condition(alt.datum['YOY%'] >= 0, alt.value('#2e7d32'), alt.value('#d32f2f')),
+            tooltip=["季度", alt.Tooltip("本年度:Q", title="本年度", format=",.0f"), alt.Tooltip("明年度:Q", title="明年度", format=",.0f"), alt.Tooltip("差異:Q", title="差異", format=",.0f"), alt.Tooltip("YOY%:Q", title="YOY%", format=",.1f")],
+        ).properties(height=220)
+        st.altair_chart(q_yoy, use_container_width=True)
+        st.dataframe(quarterly_kpi[["季度", "本年度", "明年度", "差異", "YOY%"]].style.format({"本年度": _safe_thousands_formatter, "明年度": _safe_thousands_formatter, "差異": _safe_thousands_formatter, "YOY%": lambda v: f"{float(v):,.1f}%"}), use_container_width=True, hide_index=True)
+
+    st.caption("四季 YOY 統計方式：依『訂閱到期日』落點分到 Q1~Q4，統計金額以『成交價未稅小計』為主；差異 = 明年度 - 今年度；YOY% = 差異 / 今年度。")
+
+    st.divider()
+    st.markdown("## 4️⃣ 客戶與產品分析")
+    cp1, cp2 = st.columns(2)
+
+    cust_summary = mart.groupby("最終客戶", dropna=False).agg(
+        今年金額=("今年金額", "sum"),
+        明年金額=("明年金額", "sum"),
+        風險最高等級=("續約風險等級", _safe_first),
+        客戶健康度=("客戶健康度", "max"),
+        經銷商=("經銷商", _safe_first),
+        展碁業務=("展碁業務", _safe_first),
+    ).reset_index()
+    cust_summary["差異金額"] = cust_summary["明年金額"] - cust_summary["今年金額"]
+    top_cust = cust_summary.sort_values("今年金額", ascending=False).head(10)
+    top_cust_risk = cust_summary[cust_summary["最終客戶"].isin(high_medium["最終客戶"])].sort_values("今年金額", ascending=False).head(10)
+
+    with cp1:
+        st.markdown("#### Top 10 Revenue")
+        bar = alt.Chart(top_cust).mark_bar(cornerRadiusTopRight=4, cornerRadiusBottomRight=4).encode(
+            x=alt.X("今年金額:Q", title="金額"),
+            y=alt.Y("最終客戶:N", sort="-x", title="客戶"),
+            color=alt.value("#1565c0"),
+            tooltip=["最終客戶", alt.Tooltip("今年金額:Q", format=",.0f"), alt.Tooltip("明年金額:Q", format=",.0f"), alt.Tooltip("差異金額:Q", format=",.0f")],
+        ).properties(height=320)
+        st.altair_chart(bar, use_container_width=True)
+    with cp2:
+        st.markdown("#### Top 10 Risk")
+        if top_cust_risk.empty:
+            st.info("目前沒有高 / 中風險客戶")
+        else:
+            st.dataframe(top_cust_risk[["最終客戶", "經銷商", "展碁業務", "今年金額", "明年金額", "差異金額", "客戶健康度"]].style.format({"今年金額": _safe_thousands_formatter, "明年金額": _safe_thousands_formatter, "差異金額": _safe_thousands_formatter}), use_container_width=True, hide_index=True)
+
+    prod_this = df_this.groupby("商品名稱", dropna=False).agg(今年金額=(ANALYSIS_VALUE_COL, "sum"), 今年數量=("數量", "sum")).reset_index()
+    prod_next = df_next.groupby("商品名稱", dropna=False).agg(明年金額=(ANALYSIS_VALUE_COL, "sum"), 明年數量=("數量", "sum")).reset_index() if not df_next.empty else pd.DataFrame(columns=["商品名稱", "明年金額", "明年數量"])
+    prod = prod_this.merge(prod_next, on="商品名稱", how="left").fillna(0)
+    prod["金額差異"] = prod["明年金額"] - prod["今年金額"]
+    prod["數量差異"] = prod["明年數量"] - prod["今年數量"]
+    prod_top = prod.sort_values("今年金額", ascending=False).head(15)
+
+    d_this = df_this.copy()
+    d_this["訂閱到期日"] = pd.to_datetime(d_this["訂閱到期日"], errors="coerce")
+    d_this = d_this[pd.notna(d_this["訂閱到期日"])].copy()
+    d_this["月份"] = d_this["訂閱到期日"].dt.month
+
+    p1, p2 = st.columns([1, 1.2])
+    with p1:
+        st.markdown("#### Top 15 商品金額")
+        pbar = alt.Chart(prod_top).mark_bar(cornerRadiusTopRight=4, cornerRadiusBottomRight=4).encode(
+            x=alt.X("今年金額:Q", title="金額"),
+            y=alt.Y("商品名稱:N", sort="-x", title="商品"),
+            color=alt.value("#00897b"),
+            tooltip=["商品名稱", alt.Tooltip("今年金額:Q", format=",.0f"), alt.Tooltip("明年金額:Q", format=",.0f"), alt.Tooltip("金額差異:Q", format=",.0f")],
+        ).properties(height=420)
+        st.altair_chart(pbar, use_container_width=True)
+    with p2:
+        st.markdown("#### 月份 × 產品 Heatmap")
+        heat_base = d_this.copy()
+        heat_base["商品名稱"] = heat_base["商品名稱"].astype(str)
+        top_heat_products = prod_top["商品名稱"].astype(str).tolist()[:12]
+        heat_base = heat_base[heat_base["商品名稱"].isin(top_heat_products)].copy()
+        if heat_base.empty:
+            st.info("無資料可顯示")
+        else:
+            heat = heat_base.groupby(["月份", "商品名稱"], dropna=False)[ANALYSIS_VALUE_COL].sum().reset_index()
+            heat_chart = alt.Chart(heat).mark_rect().encode(
+                x=alt.X("月份:O", sort=month_order, title="月份"),
+                y=alt.Y("商品名稱:N", sort=top_heat_products, title="商品"),
+                color=alt.Color(f"{ANALYSIS_VALUE_COL}:Q", title="金額", scale=alt.Scale(scheme="blues")),
+                tooltip=["月份", "商品名稱", alt.Tooltip(ANALYSIS_VALUE_COL, format=",.0f")],
+            ).properties(height=420)
+            st.altair_chart(heat_chart, use_container_width=True)
+
+    health_top = cust_summary.sort_values(["客戶健康度", "今年金額"], ascending=[False, False]).head(10)
+    st.markdown("#### 客戶健康度 Top 10")
+    st.dataframe(health_top[["最終客戶", "經銷商", "展碁業務", "客戶健康度", "今年金額", "明年金額"]].style.format({"今年金額": _safe_thousands_formatter, "明年金額": _safe_thousands_formatter}), use_container_width=True, hide_index=True)
+    st.caption("客戶健康度統計方式：是否續約 40 分、金額成長 20 分、產品數最多 20 分、Security 關鍵字最多 20 分。")
+
+    st.divider()
+    st.markdown("## 5️⃣ 經銷商與業務分析")
+    reseller = mart.groupby("經銷商", dropna=False).agg(
+        今年金額=("今年金額", "sum"),
+        明年金額=("明年金額", "sum"),
+        風險金額=("今年金額", lambda s: float(s.sum())),
+        高風險客戶數=("續約風險等級", lambda s: int(pd.Series(s).isin(["🔴 High", "🟠 Medium"]).sum())),
+        Upsell潛力=("商機類型", lambda s: int(pd.Series(s).eq("Upsell/Cross-sell").sum())),
+    ).reset_index()
+    reseller["續約率"] = reseller.apply(lambda r: (min(r["今年金額"], r["明年金額"]) / r["今年金額"] * 100) if r["今年金額"] > 0 else 0, axis=1)
+    reseller["差異金額"] = reseller["明年金額"] - reseller["今年金額"]
+    reseller = reseller.sort_values("今年金額", ascending=False)
+
+    sales = mart.groupby("展碁業務", dropna=False).agg(
+        今年金額=("今年金額", "sum"),
+        明年金額=("明年金額", "sum"),
+        高風險案件數=("續約風險等級", lambda s: int(pd.Series(s).isin(["🔴 High", "🟠 Medium"]).sum())),
+        失守金額=("今年金額", lambda s: float(s.sum())),
+        Upsell潛力=("商機類型", lambda s: int(pd.Series(s).eq("Upsell/Cross-sell").sum())),
+    ).reset_index()
+    sales["續約率"] = sales.apply(lambda r: (min(r["今年金額"], r["明年金額"]) / r["今年金額"] * 100) if r["今年金額"] > 0 else 0, axis=1)
+    sales["差異金額"] = sales["明年金額"] - sales["今年金額"]
+    sales = sales.sort_values("今年金額", ascending=False)
+
+    rs1, rs2 = st.columns(2)
+    with rs1:
+        st.markdown("#### 經銷商分析")
+        st.dataframe(reseller[["經銷商", "今年金額", "明年金額", "差異金額", "續約率", "高風險客戶數", "Upsell潛力"]].head(15).style.format({"今年金額": _safe_thousands_formatter, "明年金額": _safe_thousands_formatter, "差異金額": _safe_thousands_formatter, "續約率": lambda v: f"{float(v):,.1f}%"}), use_container_width=True, hide_index=True)
+    with rs2:
+        st.markdown("#### 業務分析")
+        st.dataframe(sales[["展碁業務", "今年金額", "明年金額", "差異金額", "續約率", "高風險案件數", "Upsell潛力"]].head(15).style.format({"今年金額": _safe_thousands_formatter, "明年金額": _safe_thousands_formatter, "差異金額": _safe_thousands_formatter, "續約率": lambda v: f"{float(v):,.1f}%"}), use_container_width=True, hide_index=True)
+
+    rg1, rg2 = st.columns(2)
+    with rg1:
+        rchart = alt.Chart(reseller.head(10)).mark_bar(cornerRadiusTopRight=4, cornerRadiusBottomRight=4).encode(
+            x=alt.X("今年金額:Q", title="金額"),
+            y=alt.Y("經銷商:N", sort="-x", title="經銷商"),
+            color=alt.value("#3949ab"),
+            tooltip=["經銷商", alt.Tooltip("今年金額:Q", format=",.0f"), alt.Tooltip("續約率:Q", format=",.1f"), "高風險客戶數"],
+        ).properties(height=320, title="Top 10 經銷商 Revenue")
+        st.altair_chart(rchart, use_container_width=True)
+    with rg2:
+        schart = alt.Chart(sales.head(10)).mark_bar(cornerRadiusTopRight=4, cornerRadiusBottomRight=4).encode(
+            x=alt.X("今年金額:Q", title="金額"),
+            y=alt.Y("展碁業務:N", sort="-x", title="業務"),
+            color=alt.value("#00897b"),
+            tooltip=["展碁業務", alt.Tooltip("今年金額:Q", format=",.0f"), alt.Tooltip("續約率:Q", format=",.1f"), "高風險案件數"],
+        ).properties(height=320, title="Top 10 業務 Revenue")
+        st.altair_chart(schart, use_container_width=True)
+    st.caption("經銷商 / 業務統計方式：以客戶 + 到期年度 mart 為基礎，先算每個客戶年度金額與風險，再依經銷商 / 展碁業務聚合。續約率 = min(今年, 明年) / 今年。")
+
+    st.divider()
+    st.markdown("## 6️⃣ 業務機會清單")
+    opp_df = mart[mart["商機類型"] == "Upsell/Cross-sell"].copy().sort_values(["今年金額", "流失機率"], ascending=[False, False])
+    if opp_df.empty:
+        st.info("目前沒有明顯的 Upsell / Cross-sell 機會。")
+    else:
+        st.dataframe(
+            opp_df[["最終客戶", "經銷商", "展碁業務", "代表商品", "今年金額", "續約風險等級", "建議動作", "流失機率", "客戶健康度"]].style.format({"今年金額": _safe_thousands_formatter}),
             use_container_width=True,
+            hide_index=True,
+        )
+    st.caption("業務機會清單統計方式：以 _pick_recommendations() 對代表商品與產品分類做規則判斷，若存在升級或加購建議則標記為 Upsell/Cross-sell。")
+
+    st.divider()
+    st.markdown("## 7️⃣ 詳細明細")
+    detail_tab1, detail_tab2, detail_tab3 = st.tabs(["風險明細", "商機明細", "分組明細"])
+    with detail_tab1:
+        risk_detail = mart.sort_values(["流失機率", "今年金額"], ascending=[False, False])
+        st.dataframe(
+            risk_detail[["最終客戶", "經銷商", "展碁業務", "客戶微軟網域", "代表商品", "商品組合", "今年金額", "明年金額", "差異金額", "續約剩餘天數", "續約風險等級", "流失機率", "風險原因", "建議動作"]].style.format({"今年金額": _safe_thousands_formatter, "明年金額": _safe_thousands_formatter, "差異金額": _safe_thousands_formatter}),
+            use_container_width=True,
+            hide_index=True,
+        )
+    with detail_tab2:
+        st.dataframe(
+            opp_df[["最終客戶", "經銷商", "展碁業務", "代表商品", "今年金額", "商機類型", "建議動作", "客戶健康度", "流失機率"]].style.format({"今年金額": _safe_thousands_formatter}),
+            use_container_width=True,
+            hide_index=True,
+        )
+    with detail_tab3:
+        render_grouped_table(df_this, df_next=df_next)
+
+    st.divider()
+    st.markdown("## 8️⃣ AI 建議 / Copilot")
+    prompt_col, result_col = st.columns([0.8, 1.2])
+    with prompt_col:
+        st.markdown("#### 建議提問")
+        prompt_samples = pd.DataFrame([
+            {"Prompt": "請分析續約風險"},
+            {"Prompt": "哪些經銷商最需要優先輔導"},
+            {"Prompt": "哪些業務名下風險最高"},
+            {"Prompt": "哪些客戶適合推 Copilot / Security"},
+            {"Prompt": "請幫我生成本週主管摘要"},
+        ])
+        st.dataframe(prompt_samples, use_container_width=True, hide_index=True)
+    with result_col:
+        top3_risk = mart.sort_values(["流失機率", "今年金額"], ascending=[False, False]).head(3)
+        risk_lines = [f"- {r['最終客戶']}｜{r['經銷商']}｜{r['展碁業務']}｜{r['續約風險等級']}｜{format_money(r['今年金額'])}" for _, r in top3_risk.iterrows()]
+        top3_opp = opp_df.sort_values("今年金額", ascending=False).head(3) if not opp_df.empty else pd.DataFrame()
+        opp_lines = [f"- {r['最終客戶']}：建議 {r['建議動作']}" for _, r in top3_opp.iterrows()]
+        top_sales_text = "-"
+        if not sales.empty:
+            srow = sales.sort_values(["高風險案件數", "今年金額"], ascending=[False, False]).iloc[0]
+            top_sales_text = f"{srow['展碁業務']}（高風險 {int(srow['高風險案件數'])} 件）"
+        ai_summary = f"""
+【AI 建議摘要（規則引擎版，可直接接 AOAI / Copilot）】
+
+1. 本週應優先聯絡客戶：
+{chr(10).join(risk_lines) if risk_lines else '- 目前無高風險客戶'}
+
+2. 本週建議優先輔導通路：
+- {top_risk_reseller}
+
+3. 本週建議主管關注業務：
+- {top_sales_text}
+
+4. 可優先推動的商機：
+{chr(10).join(opp_lines) if opp_lines else '- 目前以續約追蹤為主'}
+
+5. 建議下一步：
+- 先處理 30 天內未續約且明年度金額為 0 的案件
+- 對高金額客戶同步進行續約 + Security / Copilot 組合提案
+- 對高風險經銷商安排專案檢視與週追蹤
+"""
+        st.text_area("AI 建議 / Copilot-ready 摘要", value=ai_summary, height=320)
+
+    st.success("v2 已新增四季 YOY、月趨勢、統計口徑說明，並把目前做得到的內容完整整合為可執行版。")
+
+
+tab_current, tab_v2 = st.tabs(["目前頁面", "CSP 續約儀表板 v2 架構"])
+
+with tab_current:
+    # ---------------------------
+    # A) KPI（本年度 + 明年度 + 差異）
+    # ---------------------------
+    st.subheader(f"A) KPI 指標（以「{ANALYSIS_VALUE_COL}」分析）")
+    show_filter_ranges_if_enabled(ui_state)
+
+    # 本年度（原篩選）
+    kpis_this = build_kpis(df_filtered)
+
+    # 明年度（原篩選範圍 +1 年；若無資料視為 0）
+    kpis_next = build_kpis(df_filtered_next)
+
+    # 差異（明年度 - 今年度）
+    kpis_diff = {
+        "筆數": kpis_next["筆數"] - kpis_this["筆數"],
+        "最終客戶數": kpis_next["最終客戶數"] - kpis_this["最終客戶數"],
+        "經銷商數": kpis_next["經銷商數"] - kpis_this["經銷商數"],
+        f"{ANALYSIS_VALUE_COL}合計": kpis_next[f"{ANALYSIS_VALUE_COL}合計"] - kpis_this[f"{ANALYSIS_VALUE_COL}合計"],
+    }
+
+    st.markdown('<div style="font-size:0.72rem; font-weight:700; color:#546e7a; text-transform:uppercase; letter-spacing:1px; margin-bottom:0.4rem; padding-left:2px;">📅 今年度（原篩選）</div>', unsafe_allow_html=True)
+    k1, k2, k3, k4 = st.columns(4)
+    k1.metric("筆數", f"{kpis_this['筆數']:,}")
+    k2.metric("最終客戶數", f"{kpis_this['最終客戶數']:,}")
+    k3.metric("經銷商數", f"{kpis_this['經銷商數']:,}")
+    k4.metric(f"{ANALYSIS_VALUE_COL}合計", format_money(kpis_this[f"{ANALYSIS_VALUE_COL}合計"]))
+
+    st.markdown('<div style="font-size:0.72rem; font-weight:700; color:#546e7a; text-transform:uppercase; letter-spacing:1px; margin-top:0.8rem; margin-bottom:0.4rem; padding-left:2px;">📅 明年度（原篩選範圍 +1 年；若無資料視為 0）</div>', unsafe_allow_html=True)
+    n1, n2, n3, n4 = st.columns(4)
+    n1.metric("筆數", f"{kpis_next['筆數']:,}")
+    n2.metric("最終客戶數", f"{kpis_next['最終客戶數']:,}")
+    n3.metric("經銷商數", f"{kpis_next['經銷商數']:,}")
+    n4.metric(f"{ANALYSIS_VALUE_COL}合計", format_money(kpis_next[f"{ANALYSIS_VALUE_COL}合計"]))
+
+    # ✅ 差異（明年度 - 今年度）數值以棕色呈現
+    st.markdown('<div style="font-size:0.72rem; font-weight:700; color:#546e7a; text-transform:uppercase; letter-spacing:1px; margin-top:0.8rem; margin-bottom:0.4rem; padding-left:2px;">📈 差異（明年度 - 今年度）</div>', unsafe_allow_html=True)
+
+
+    def _kpi_diff_card(label: str, value_str: str):
+        is_positive = value_str.startswith("+")
+        is_negative = value_str.startswith("-")
+        arrow = "▲" if is_positive else ("▼" if is_negative else "—")
+        bg_color = "rgba(46,125,50,0.07)" if is_positive else ("rgba(211,47,47,0.07)" if is_negative else "rgba(0,0,0,0.04)")
+        border_color = "#2E7D32" if is_positive else ("#D32F2F" if is_negative else "#9e9e9e")
+        text_color = "#2E7D32" if is_positive else ("#D32F2F" if is_negative else BROWN_COLOR)
+        st.markdown(
+            f"""
+            <div style="
+                background: {bg_color};
+                border: 1px solid {border_color}22;
+                border-left: 3px solid {border_color};
+                border-radius: 10px;
+                padding: 0.7rem 1rem;
+                min-height: 72px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            ">
+                <div style="font-size: 0.7rem; color: #78909c; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.2rem;">{label} <span style="opacity:0.6;">YoY</span></div>
+                <div style="font-size: 1.45rem; font-weight: 800; color: {text_color}; font-family: 'Inter', sans-serif; line-height: 1.1; letter-spacing: -0.3px;">{arrow} {value_str.lstrip('+-')}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
 
 
-with c3:
-    st.caption("Line：到期月份金額趨勢（今年度 vs 明年度）")
+    d1, d2, d3, d4 = st.columns(4)
+    with d1:
+        _kpi_diff_card("筆數", format_signed_int(kpis_diff["筆數"]))
+    with d2:
+        _kpi_diff_card("最終客戶數", format_signed_int(kpis_diff["最終客戶數"]))
+    with d3:
+        _kpi_diff_card("經銷商數", format_signed_int(kpis_diff["經銷商數"]))
+    with d4:
+        _kpi_diff_card(f"{ANALYSIS_VALUE_COL}合計", format_signed_money(kpis_diff[f"{ANALYSIS_VALUE_COL}合計"]))
 
-    def _months_in_range(start_d: date, end_d: date) -> list[int]:
-        """
-        回傳在 start_d~end_d 之間會涵蓋到的月份（1~12），只看月份區間，不強制補齊 1~12。
-        若跨年，會回傳跨年的月份序列（例如 11,12,1,2）。
-        """
-        if start_d is None or end_d is None:
-            return list(range(1, 13))
+    st.markdown('<div style="font-size:0.72rem; font-weight:700; color:#546e7a; text-transform:uppercase; letter-spacing:1px; margin-top:0.8rem; margin-bottom:0.4rem; padding-left:2px;">📊 四季趨勢（本年度 / 明年度 / 差異）</div>', unsafe_allow_html=True)
+    quarterly_kpi = build_quarterly_kpi_df(df_filtered, df_filtered_next)
 
-        if start_d > end_d:
-            start_d, end_d = end_d, start_d
-
-        m1, m2 = start_d.month, end_d.month
-        y1, y2 = start_d.year, end_d.year
-
-        if y1 == y2:
-            return list(range(m1, m2 + 1))
-
-        # 跨年：例如 2026/11~2027/02 -> [11,12,1,2]
-        return list(range(m1, 13)) + list(range(1, m2 + 1))
-
-    def _month_trend(df_in: pd.DataFrame, months: list[int]) -> pd.DataFrame:
-        """回傳欄位：到期月份, ANALYSIS_VALUE_COL（已補齊 months_scope）"""
-        if df_in is None or df_in.empty:
-            return pd.DataFrame({"到期月份": months, ANALYSIS_VALUE_COL: [0] * len(months)})
-
-        d = df_in[pd.notna(df_in["訂閱到期日"])].copy()
-        if d.empty:
-            return pd.DataFrame({"到期月份": months, ANALYSIS_VALUE_COL: [0] * len(months)})
-
-        d["到期月份"] = d["訂閱到期日"].dt.month
-        trend = d.groupby("到期月份")[ANALYSIS_VALUE_COL].sum()
-        trend = pd.to_numeric(trend, errors="coerce").fillna(0)
-
-        # ✅ 只補齊「篩選範圍涵蓋的月份」
-        trend = trend.reindex(months, fill_value=0).reset_index()
-        return trend
-
-    # ✅ 依左側篩選決定月份範圍（若勾選「未來N月」，則以 today~end_date 的月份範圍）
-    if ui_state["future_expiry_enabled"]:
-        base_today = date.today()
-        end_date = base_today + relativedelta(months=ui_state["future_expiry_months"])
-        months_scope = _months_in_range(base_today, end_date)
-    else:
-        exp_from, exp_to = ui_state["expiry_range"]
-        months_scope = _months_in_range(exp_from, exp_to)
-
-    # 本年度 / 隔年度（月趨勢）
-    t_this = _month_trend(df_filtered, months_scope).rename(columns={ANALYSIS_VALUE_COL: f"{ANALYSIS_VALUE_COL}_本年度"})
-    t_next = _month_trend(df_filtered_next, months_scope).rename(columns={ANALYSIS_VALUE_COL: f"{ANALYSIS_VALUE_COL}_隔年度"})
-
-    # 合併後計算差異（隔年度 - 本年度）
-    merged = t_this.merge(t_next, on="到期月份", how="outer").fillna(0)
-
-    merged[f"{ANALYSIS_VALUE_COL}_本年度"] = pd.to_numeric(merged[f"{ANALYSIS_VALUE_COL}_本年度"], errors="coerce").fillna(0)
-    merged[f"{ANALYSIS_VALUE_COL}_隔年度"] = pd.to_numeric(merged[f"{ANALYSIS_VALUE_COL}_隔年度"], errors="coerce").fillna(0)
-
-    merged["差異"] = merged[f"{ANALYSIS_VALUE_COL}_隔年度"] - merged[f"{ANALYSIS_VALUE_COL}_本年度"]
-
-    if merged.empty:
+    if quarterly_kpi.empty:
         st.info("無資料可顯示")
     else:
-        # 上半部：雙線圖（本年度 vs 隔年度）
-        line_df = pd.concat(
+        quarterly_kpi = quarterly_kpi.copy()
+        quarterly_kpi["YOY%"] = quarterly_kpi.apply(
+            lambda r: ((float(r["差異"]) / float(r["本年度"]) * 100) if float(r["本年度"]) != 0 else 0),
+            axis=1,
+        )
+        quarter_order = ["Q1", "Q2", "Q3", "Q4"]
+        quarter_bar_df = pd.concat(
             [
-                merged[["到期月份", f"{ANALYSIS_VALUE_COL}_本年度"]]
-                .rename(columns={f"{ANALYSIS_VALUE_COL}_本年度": ANALYSIS_VALUE_COL})
-                .assign(年度="本年度"),
-                merged[["到期月份", f"{ANALYSIS_VALUE_COL}_隔年度"]]
-                .rename(columns={f"{ANALYSIS_VALUE_COL}_隔年度": ANALYSIS_VALUE_COL})
-                .assign(年度="明年度"),
+                quarterly_kpi[["季度", "本年度"]].rename(columns={"本年度": "金額"}).assign(年度="本年度"),
+                quarterly_kpi[["季度", "明年度"]].rename(columns={"明年度": "金額"}).assign(年度="明年度"),
             ],
             ignore_index=True,
         )
 
-        line_chart = (
-            alt.Chart(line_df)
-            .mark_line(point=True)
-            .encode(
-                x=alt.X("到期月份:O", sort=months_scope, title=""),
-                y=alt.Y(f"{ANALYSIS_VALUE_COL}:Q", title="金額"),
-                color=alt.Color("年度:N", title="年度"),
-                tooltip=["年度", "到期月份", alt.Tooltip(ANALYSIS_VALUE_COL, format=",.0f")],
-            )
-            .properties(height=160)
-        )
+        left_col, right_col = st.columns([1.8, 1.0], gap="large")
 
-        # 下半部：差異柱狀圖（隔年度 - 本年度）
-        bar_chart = (
-            alt.Chart(merged)
-            .mark_bar()
-            .encode(
-                x=alt.X("到期月份:O", sort=months_scope, title="到期月份"),
-                y=alt.Y("差異:Q", title="差異（明年度 - 今年度）"),
-                # 正值（隔 > 本）用棕色；負值用藍色
-                color=alt.condition(
-                    alt.datum.差異 >= 0,
-                    alt.value("#8B4513"),
-                    alt.value("#4682B4"),
+        with left_col:
+            bar_chart = alt.Chart(quarter_bar_df).mark_bar(size=40, cornerRadiusTopLeft=4, cornerRadiusTopRight=4).encode(
+                x=alt.X("季度:O", sort=quarter_order, title="季度", axis=alt.Axis(labelAngle=0, labelFontSize=12, titleFontSize=12)),
+                y=alt.Y("金額:Q", title="金額", axis=alt.Axis(format=",.0f", labelFontSize=11, titleFontSize=12)),
+                xOffset=alt.XOffset("年度:N"),
+                color=alt.Color(
+                    "年度:N",
+                    title="年度",
+                    scale=alt.Scale(domain=["本年度", "明年度"], range=["#ef6c00", "#1565c0"]),
+                    legend=alt.Legend(orient="top-right"),
                 ),
+                tooltip=["年度", "季度", alt.Tooltip("金額:Q", title="金額", format=",.0f")],
+            )
+
+            diff_line = alt.Chart(quarterly_kpi).mark_line(point=True, strokeWidth=3, color="#2e7d32").encode(
+                x=alt.X("季度:O", sort=quarter_order),
+                y=alt.Y("差異:Q", title="差異（明-今）", axis=alt.Axis(format=",.0f", orient="right", labelFontSize=11, titleFontSize=12)),
                 tooltip=[
-                    "到期月份",
-                    alt.Tooltip(f"{ANALYSIS_VALUE_COL}_本年度:Q", title="本年度", format=",.0f"),
-                    alt.Tooltip(f"{ANALYSIS_VALUE_COL}_隔年度:Q", title="明年度", format=",.0f"),
+                    "季度",
+                    alt.Tooltip("本年度:Q", title="本年度", format=",.0f"),
+                    alt.Tooltip("明年度:Q", title="明年度", format=",.0f"),
                     alt.Tooltip("差異:Q", title="差異（明-今）", format=",.0f"),
+                    alt.Tooltip("YOY%:Q", title="YOY%", format=",.1f"),
                 ],
             )
-            .properties(height=160)
+
+            quarter_dual_chart = alt.layer(bar_chart, diff_line).resolve_scale(y="independent").properties(height=380)
+            st.altair_chart(quarter_dual_chart, use_container_width=True)
+
+        with right_col:
+            table_show = quarterly_kpi[["季度", "本年度", "明年度", "差異", "YOY%"]].copy()
+            st.dataframe(
+                table_show.style.format(
+                    {
+                        "本年度": _safe_thousands_formatter,
+                        "明年度": _safe_thousands_formatter,
+                        "差異": _safe_thousands_formatter,
+                        "YOY%": lambda v: f"{float(v):,.1f}%",
+                    }
+                ),
+                use_container_width=True,
+                hide_index=True,
+                height=380,
+            )
+
+    st.divider()
+
+    st.divider()
+
+    # ---------------------------
+    # 10) Top 10（續約客戶 / 經銷商）
+    # ---------------------------
+    st.subheader(f"B) Top 10 續約客戶（以 {ANALYSIS_VALUE_COL} 合計排序）")
+    show_filter_ranges_if_enabled(ui_state)
+
+    top10_customer_this = top10_by(df_filtered, "最終客戶", ANALYSIS_VALUE_COL, top_n=10, extra_col="商品名稱").rename(
+        columns={ANALYSIS_VALUE_COL: "需約金額"}
+    )
+    top10_customer_this["需約金額"] = pd.to_numeric(top10_customer_this["需約金額"], errors="coerce").fillna(0)
+
+    # 明年度續約金額（同客戶，範圍為原篩選 +1 年；若無視為 0）
+    top10_customer_next_all = (
+        df_filtered_next.groupby("最終客戶", dropna=False)[ANALYSIS_VALUE_COL]
+        .sum()
+        .reset_index()
+        .rename(columns={ANALYSIS_VALUE_COL: "明年度續約金額"})
+    )
+    top10_customer_next_all["明年度續約金額"] = pd.to_numeric(top10_customer_next_all["明年度續約金額"], errors="coerce").fillna(0)
+
+    top10_customer = top10_customer_this.merge(top10_customer_next_all, on="最終客戶", how="left")
+    top10_customer["明年度續約金額"] = pd.to_numeric(top10_customer["明年度續約金額"], errors="coerce").fillna(0)
+
+    # 差異金額 = 明年度續約金額 - 今年度需約金額
+    top10_customer["差異金額"] = top10_customer["明年度續約金額"] - top10_customer["需約金額"]
+
+    # 欄位順序：需約金額後 -> 明年度續約金額 -> 差異金額
+    cols = top10_customer.columns.tolist()
+    desired = ["最終客戶", "需約金額", "明年度續約金額", "差異金額"]
+    ordered_cols = [c for c in desired if c in cols] + [c for c in cols if c not in set(desired)]
+    top10_customer = top10_customer[ordered_cols]
+
+    # ✅ 右側主區：數字排序欄
+    top10_customer.insert(0, "排序", [str(i+1) for i in range(len(top10_customer))])
+
+    # ✅ 差異金額欄位名稱棕色（表頭）
+    cust_styler = top10_customer.style.format(
+        {
+            "需約金額": _safe_thousands_formatter,
+            "明年度續約金額": _safe_thousands_formatter,
+            "差異金額": _safe_thousands_formatter,
+        }
+    ).set_table_styles(_style_header_color_for_column(top10_customer, "差異金額", BROWN_COLOR), overwrite=False)
+
+    st.dataframe(cust_styler, use_container_width=True, hide_index=True)
+
+    st.subheader(f"C) Top 10 經銷商（以 {ANALYSIS_VALUE_COL} 合計排序）")
+    show_filter_ranges_if_enabled(ui_state)
+
+    # 本年度 Top10 經銷商（金額）
+    top10_dealer_this = top10_by(df_filtered, "經銷商", ANALYSIS_VALUE_COL, top_n=10).rename(columns={ANALYSIS_VALUE_COL: "金額"})
+    top10_dealer_this["金額"] = pd.to_numeric(top10_dealer_this["金額"], errors="coerce").fillna(0)
+
+    # ✅ 明年度續約金額（原篩選範圍 +1 年；若無視為 0）
+    top10_dealer_next_all = (
+        df_filtered_next.groupby("經銷商", dropna=False)[ANALYSIS_VALUE_COL]
+        .sum()
+        .reset_index()
+        .rename(columns={ANALYSIS_VALUE_COL: "明年度續約金額"})
+    )
+    top10_dealer_next_all["明年度續約金額"] = pd.to_numeric(top10_dealer_next_all["明年度續約金額"], errors="coerce").fillna(0)
+
+    top10_dealer = top10_dealer_this.merge(top10_dealer_next_all, on="經銷商", how="left")
+    top10_dealer["明年度續約金額"] = pd.to_numeric(top10_dealer["明年度續約金額"], errors="coerce").fillna(0)
+
+    # ✅ 差異金額 = 明年度續約金額 - 今年度金額
+    top10_dealer["差異金額"] = top10_dealer["明年度續約金額"] - top10_dealer["金額"]
+
+    # 欄位順序：金額 -> 明年度續約金額 -> 差異金額
+    dealer_cols = top10_dealer.columns.tolist()
+    dealer_desired = ["經銷商", "金額", "明年度續約金額", "差異金額"]
+    dealer_ordered = [c for c in dealer_desired if c in dealer_cols] + [c for c in dealer_cols if c not in set(dealer_desired)]
+    top10_dealer = top10_dealer[dealer_ordered]
+
+    # ✅ 右側主區：數字排序欄
+    top10_dealer.insert(0, "排序", [str(i+1) for i in range(len(top10_dealer))])
+
+    # ✅ 差異金額欄位名稱棕色（表頭）
+    dealer_styler = top10_dealer.style.format(
+        {
+            "金額": _safe_thousands_formatter,
+            "明年度續約金額": _safe_thousands_formatter,
+            "差異金額": _safe_thousands_formatter,
+        }
+    ).set_table_styles(_style_header_color_for_column(top10_dealer, "差異金額", BROWN_COLOR), overwrite=False)
+
+    st.dataframe(dealer_styler, use_container_width=True, hide_index=True)
+
+    st.divider()
+
+    # ---------------------------
+    # 圖表
+    # ---------------------------
+    st.subheader(f"D) 資訊圖表（以「{ANALYSIS_VALUE_COL}」分析）")
+    show_filter_ranges_if_enabled(ui_state)
+
+    c1, c3 = st.columns(2)
+
+    with c1:
+        st.markdown('<div style="font-size:0.78rem; font-weight:700; color:#1565c0; margin-bottom:0.4rem; padding-left:2px;">📊 Top 10 續約客戶（需約金額）</div>', unsafe_allow_html=True)
+        if top10_customer.empty:
+            st.info("無資料可顯示")
+        else:
+            tmp = top10_customer[["最終客戶", "需約金額"]].rename(columns={"需約金額": ANALYSIS_VALUE_COL}).copy()
+            tmp[ANALYSIS_VALUE_COL] = pd.to_numeric(tmp[ANALYSIS_VALUE_COL], errors="coerce").fillna(0)
+            st.altair_chart(
+                alt.Chart(tmp)
+                .mark_bar(cornerRadiusTopRight=4, cornerRadiusBottomRight=4)
+                .encode(
+                    x=alt.X(ANALYSIS_VALUE_COL, title="金額", axis=alt.Axis(format=",.0s", labelFontSize=10)),
+                    y=alt.Y("最終客戶:N", sort="-x", title="最終客戶", axis=alt.Axis(labelFontSize=11)),
+                    color=alt.Color("最終客戶:N", legend=None, scale=alt.Scale(scheme="blues")),
+                    tooltip=["最終客戶", alt.Tooltip(ANALYSIS_VALUE_COL, format=",.0f")],
+                )
+                .properties(height=380),
+                use_container_width=True,
+            )
+
+
+    with c3:
+        st.markdown('<div style="font-size:0.78rem; font-weight:700; color:#1565c0; margin-bottom:0.4rem; padding-left:2px;">📈 到期月份金額趨勢（今年度 vs 明年度）</div>', unsafe_allow_html=True)
+
+        def _months_in_range(start_d: date, end_d: date) -> list[int]:
+            """
+            回傳在 start_d~end_d 之間會涵蓋到的月份（1~12），只看月份區間，不強制補齊 1~12。
+            若跨年，會回傳跨年的月份序列（例如 11,12,1,2）。
+            """
+            if start_d is None or end_d is None:
+                return list(range(1, 13))
+
+            if start_d > end_d:
+                start_d, end_d = end_d, start_d
+
+            m1, m2 = start_d.month, end_d.month
+            y1, y2 = start_d.year, end_d.year
+
+            if y1 == y2:
+                return list(range(m1, m2 + 1))
+
+            # 跨年：例如 2026/11~2027/02 -> [11,12,1,2]
+            return list(range(m1, 13)) + list(range(1, m2 + 1))
+
+        def _month_trend(df_in: pd.DataFrame, months: list[int]) -> pd.DataFrame:
+            """回傳欄位：到期月份, ANALYSIS_VALUE_COL（已補齊 months_scope）"""
+            if df_in is None or df_in.empty:
+                return pd.DataFrame({"到期月份": months, ANALYSIS_VALUE_COL: [0] * len(months)})
+
+            d = df_in[pd.notna(df_in["訂閱到期日"])].copy()
+            if d.empty:
+                return pd.DataFrame({"到期月份": months, ANALYSIS_VALUE_COL: [0] * len(months)})
+
+            d["到期月份"] = d["訂閱到期日"].dt.month
+            trend = d.groupby("到期月份")[ANALYSIS_VALUE_COL].sum()
+            trend = pd.to_numeric(trend, errors="coerce").fillna(0)
+
+            # ✅ 只補齊「篩選範圍涵蓋的月份」
+            trend = trend.reindex(months, fill_value=0).reset_index()
+            return trend
+
+        # ✅ 依左側篩選決定月份範圍（若勾選「未來N月」，則以 today~end_date 的月份範圍）
+        if ui_state["future_expiry_enabled"]:
+            base_today = date.today()
+            end_date = base_today + relativedelta(months=ui_state["future_expiry_months"])
+            months_scope = _months_in_range(base_today, end_date)
+        else:
+            exp_from, exp_to = ui_state["expiry_range"]
+            months_scope = _months_in_range(exp_from, exp_to)
+
+        # 本年度 / 隔年度（月趨勢）
+        t_this = _month_trend(df_filtered, months_scope).rename(columns={ANALYSIS_VALUE_COL: f"{ANALYSIS_VALUE_COL}_本年度"})
+        t_next = _month_trend(df_filtered_next, months_scope).rename(columns={ANALYSIS_VALUE_COL: f"{ANALYSIS_VALUE_COL}_隔年度"})
+
+        # 合併後計算差異（隔年度 - 本年度）
+        merged = t_this.merge(t_next, on="到期月份", how="outer").fillna(0)
+
+        merged[f"{ANALYSIS_VALUE_COL}_本年度"] = pd.to_numeric(merged[f"{ANALYSIS_VALUE_COL}_本年度"], errors="coerce").fillna(0)
+        merged[f"{ANALYSIS_VALUE_COL}_隔年度"] = pd.to_numeric(merged[f"{ANALYSIS_VALUE_COL}_隔年度"], errors="coerce").fillna(0)
+
+        merged["差異"] = merged[f"{ANALYSIS_VALUE_COL}_隔年度"] - merged[f"{ANALYSIS_VALUE_COL}_本年度"]
+
+        if merged.empty:
+            st.info("無資料可顯示")
+        else:
+            # 上半部：雙線圖（本年度 vs 隔年度）
+            line_df = pd.concat(
+                [
+                    merged[["到期月份", f"{ANALYSIS_VALUE_COL}_本年度"]]
+                    .rename(columns={f"{ANALYSIS_VALUE_COL}_本年度": ANALYSIS_VALUE_COL})
+                    .assign(年度="本年度"),
+                    merged[["到期月份", f"{ANALYSIS_VALUE_COL}_隔年度"]]
+                    .rename(columns={f"{ANALYSIS_VALUE_COL}_隔年度": ANALYSIS_VALUE_COL})
+                    .assign(年度="明年度"),
+                ],
+                ignore_index=True,
+            )
+
+            line_chart = (
+                alt.Chart(line_df)
+                .mark_line(point=True)
+                .encode(
+                    x=alt.X("到期月份:O", sort=months_scope, title=""),
+                    y=alt.Y(f"{ANALYSIS_VALUE_COL}:Q", title="金額"),
+                    color=alt.Color("年度:N", title="年度"),
+                    tooltip=["年度", "到期月份", alt.Tooltip(ANALYSIS_VALUE_COL, format=",.0f")],
+                )
+                .properties(height=180)
+            )
+
+            # 下半部：差異柱狀圖（隔年度 - 本年度）
+            bar_chart = (
+                alt.Chart(merged)
+                .mark_bar()
+                .encode(
+                    x=alt.X("到期月份:O", sort=months_scope, title="到期月份"),
+                    y=alt.Y("差異:Q", title="差異（明年度 - 今年度）"),
+                    # 正值（隔 > 本）用棕色；負值用藍色
+                    color=alt.condition(
+                        alt.datum.差異 >= 0,
+                        alt.value("#8B4513"),
+                        alt.value("#4682B4"),
+                    ),
+                    tooltip=[
+                        "到期月份",
+                        alt.Tooltip(f"{ANALYSIS_VALUE_COL}_本年度:Q", title="本年度", format=",.0f"),
+                        alt.Tooltip(f"{ANALYSIS_VALUE_COL}_隔年度:Q", title="明年度", format=",.0f"),
+                        alt.Tooltip("差異:Q", title="差異（明-今）", format=",.0f"),
+                    ],
+                )
+                .properties(height=210)
+            )
+
+            final_chart = alt.vconcat(line_chart, bar_chart).resolve_scale(color="independent")
+            st.altair_chart(final_chart, use_container_width=True)
+
+
+
+
+    c4, c5 = st.columns([1, 2])
+    # -------------------------------------------------
+    # 4 🆕 新增：Top 15 商品名稱（金額）
+    # -------------------------------------------------
+    with c4:
+        st.markdown('<div style="font-size:0.78rem; font-weight:700; color:#1565c0; margin-bottom:0.4rem; padding-left:2px;">📦 Top 15 商品名稱（金額）</div>', unsafe_allow_html=True)
+
+        prod_amt = (
+            df_filtered.groupby("商品名稱", dropna=False)[ANALYSIS_VALUE_COL]
+            .sum()
+            .sort_values(ascending=False)
+            .head(15)
+            .reset_index()
         )
 
-        final_chart = alt.vconcat(line_chart, bar_chart).resolve_scale(color="independent")
-        st.altair_chart(final_chart, use_container_width=True)
+        prod_amt[ANALYSIS_VALUE_COL] = pd.to_numeric(prod_amt[ANALYSIS_VALUE_COL], errors="coerce").fillna(0)
+
+        if prod_amt.empty:
+            st.info("無資料可顯示")
+        else:
+            st.altair_chart(
+                alt.Chart(prod_amt)
+                .mark_bar(cornerRadiusTopRight=4, cornerRadiusBottomRight=4)
+                .encode(
+                    x=alt.X(ANALYSIS_VALUE_COL, title="金額", axis=alt.Axis(format=",.0s", labelFontSize=10)),
+                    y=alt.Y("商品名稱:N", sort="-x",
+                            axis=alt.Axis(labelFontSize=10, labelLimit=400, labelOverlap=False)),
+                    color=alt.Color("商品名稱:N", legend=None, scale=alt.Scale(scheme="teals")),
+                    tooltip=["商品名稱", alt.Tooltip(ANALYSIS_VALUE_COL, format=",.0f")],
+                )
+                .properties(height=480),
+                use_container_width=True,
+            )
+    with c5:
+        st.markdown('<div style="font-size:0.78rem; font-weight:700; color:#1565c0; margin-bottom:0.4rem; padding-left:2px;">📊 商品名稱 Top 15（金額及數量之增減｜今年度 vs 明年度）</div>', unsafe_allow_html=True)
+
+        # 依本年度金額排序取 Top15 商品
+        prod_amt_this = df_filtered.groupby("商品名稱", dropna=False)[ANALYSIS_VALUE_COL].sum()
+        prod_amt_this = pd.to_numeric(prod_amt_this, errors="coerce").fillna(0).sort_values(ascending=False)
+        top_products = prod_amt_this.head(15).index.tolist()
+
+        if not top_products:
+            st.info("無資料可顯示")
+        else:
+
+            # ===== 金額 =====
+            amt_this = prod_amt_this.reindex(top_products, fill_value=0).reset_index()
+            amt_this.columns = ["商品名稱", "金額_本年度"]
+
+            prod_amt_next = df_filtered_next.groupby("商品名稱", dropna=False)[ANALYSIS_VALUE_COL].sum()
+            prod_amt_next = pd.to_numeric(prod_amt_next, errors="coerce").fillna(0)
+            amt_next = prod_amt_next.reindex(top_products, fill_value=0).reset_index()
+            amt_next.columns = ["商品名稱", "金額_明年度"]
+
+            merged = amt_this.merge(amt_next, on="商品名稱", how="outer").fillna(0)
+            merged["金額_差異"] = merged["金額_明年度"] - merged["金額_本年度"]
+
+            # ===== 數量 =====
+            qty_this = df_filtered.groupby("商品名稱", dropna=False)["數量"].sum()
+            qty_this = pd.to_numeric(qty_this, errors="coerce").fillna(0)
+            qty_this = qty_this.reindex(top_products, fill_value=0).reset_index()
+            qty_this.columns = ["商品名稱", "數量_本年度"]
+
+            qty_next = df_filtered_next.groupby("商品名稱", dropna=False)["數量"].sum()
+            qty_next = pd.to_numeric(qty_next, errors="coerce").fillna(0)
+            qty_next = qty_next.reindex(top_products, fill_value=0).reset_index()
+            qty_next.columns = ["商品名稱", "數量_明年度"]
+
+            merged = merged.merge(qty_this, on="商品名稱", how="left")
+            merged = merged.merge(qty_next, on="商品名稱", how="left")
+            merged["數量_差異"] = merged["數量_明年度"] - merged["數量_本年度"]
+
+            merged = merged.sort_values("金額_本年度", ascending=False)
+            # ✅ 讓「差異直條圖」X 軸改顯示差異數值（取代商品名稱）
+            merged["金額差異_label"] = merged["金額_差異"].apply(lambda v: format_signed_money(v))
+            merged["數量差異_label"] = merged["數量_差異"].apply(lambda v: format_signed_int(v))
+            sort_list = merged["商品名稱"].tolist()
+            sort_list_amt_diff = merged["金額差異_label"].tolist()
+            sort_list_qty_diff = merged["數量差異_label"].tolist()
+
+            # ------------------------
+            # 金額雙線圖
+            # ------------------------
+            line_amt_df = pd.concat([
+                merged[["商品名稱", "金額_本年度"]].rename(columns={"金額_本年度": "值"}).assign(年度="本年度"),
+                merged[["商品名稱", "金額_明年度"]].rename(columns={"金額_明年度": "值"}).assign(年度="明年度")
+            ])
+
+            line_amt = (
+                alt.Chart(line_amt_df)
+                .mark_line(point=True)
+                .encode(
+                    x=alt.X("商品名稱:O", sort=sort_list),
+                    y=alt.Y("值:Q", title="金額"),
+                    color=alt.Color("年度:N"),
+                    tooltip=["年度", "商品名稱", alt.Tooltip("值:Q", format=",.0f")]
+                )
+                .properties(height=175)
+            )
+
+            bar_amt = (
+                alt.Chart(merged)
+                .mark_bar()
+                .encode(
+                    # ✅ X 軸改用「金額差異_label」(顯示差異數值)，不再顯示商品名稱
+                    x=alt.X("金額差異_label:O", sort=sort_list_amt_diff, title="金額差異（明-今）"),
+                    y=alt.Y("金額_差異:Q", title="金額差異（明-今）"),
+                    color=alt.condition(
+                        alt.datum.金額_差異 >= 0,
+                        alt.value("#6A0DAD"),
+                        alt.value("#DC143C")
+                    ),
+                    # ✅ Tooltip：商品名稱、金額_本年度、金額_明年度、金額_差異（依你指定的順序）
+                    tooltip=[
+                        alt.Tooltip("商品名稱:N", title="商品名稱"),
+                        alt.Tooltip("金額_本年度:Q", title="金額_本年度", format=",.0f"),
+                        alt.Tooltip("金額_明年度:Q", title="金額_明年度", format=",.0f"),
+                        alt.Tooltip("金額_差異:Q", title="金額_差異（明-今）", format=",.0f"),
+                    ],
+                )
+                .properties(height=175)
+            )
+
+            # ------------------------
+            # 數量雙線圖
+            # ------------------------
+            line_qty_df = pd.concat([
+                merged[["商品名稱", "數量_本年度"]].rename(columns={"數量_本年度": "值"}).assign(年度="本年度"),
+                merged[["商品名稱", "數量_明年度"]].rename(columns={"數量_明年度": "值"}).assign(年度="明年度")
+            ])
+
+            line_qty = (
+                alt.Chart(line_qty_df)
+                .mark_line(point=True)
+                .encode(
+                    x=alt.X("商品名稱:O", sort=sort_list),
+                    y=alt.Y("值:Q", title="數量"),
+                    color=alt.Color("年度:N", scale=alt.Scale(range=["#2E8B57", "#FF8C00"])),
+                    tooltip=["年度", "商品名稱", "值"]
+                )
+                .properties(height=175)
+            )
+
+            bar_qty = (
+                alt.Chart(merged)
+                .mark_bar()
+                .encode(
+                    x=alt.X("商品名稱:N", sort=sort_list, title="商品名稱"),
+                    y=alt.Y("數量_差異:Q", title="數量差異（明-今）"),
+                    color=alt.condition(
+                        alt.datum.數量_差異 >= 0,
+                        alt.value("#2E8B57"),
+                        alt.value("#B22222")
+                    ),
+                    tooltip=[
+                        alt.Tooltip("商品名稱:N", title="商品名稱"),
+                        alt.Tooltip("數量_本年度:Q", title="數量_本年度", format=",.0f"),
+                        alt.Tooltip("數量_明年度:Q", title="數量_明年度", format=",.0f"),
+                        alt.Tooltip("數量_差異:Q", title="數量_差異（明-今）", format=",.0f"),
+                    ],
+                )
+                .properties(height=175)
+            )
+
+            left_block = alt.vconcat(
+                line_amt,
+                bar_amt
+            )
+
+            right_block = alt.vconcat(
+                line_qty,
+                bar_qty
+            )
+
+            final_chart = alt.hconcat(
+                left_block,
+                right_block
+            ).resolve_scale(color="independent")
+
+            st.altair_chart(final_chart, use_container_width=True)
+
+
+
+    c7, c8 = st.columns(2)
+    with c7:
+        st.markdown('<div style="font-size:0.78rem; font-weight:700; color:#1565c0; margin-bottom:0.4rem; padding-left:2px;">👤 業務人員分析：各展碁業務金額</div>', unsafe_allow_html=True)
+        sales_sum = df_filtered.groupby("展碁業務", dropna=False)[ANALYSIS_VALUE_COL].sum().reset_index()
+        sales_sum["展碁業務"] = sales_sum["展碁業務"].astype(str).replace({"nan": "未填"})
+        sales_sum[ANALYSIS_VALUE_COL] = pd.to_numeric(sales_sum[ANALYSIS_VALUE_COL], errors="coerce").fillna(0)
+        sales_sum = sales_sum.sort_values(ANALYSIS_VALUE_COL, ascending=False).head(20)
+        if sales_sum.empty:
+            st.info("無資料可顯示")
+        else:
+            st.altair_chart(
+                alt.Chart(sales_sum)
+                .mark_bar(cornerRadiusTopRight=4, cornerRadiusBottomRight=4)
+                .encode(
+                    x=alt.X(ANALYSIS_VALUE_COL, title="金額", axis=alt.Axis(format=",.0s", labelFontSize=10)),
+                    y=alt.Y("展碁業務:N", sort="-x", title="展碁業務", axis=alt.Axis(labelFontSize=11)),
+                    color=alt.Color("展碁業務:N", legend=None, scale=alt.Scale(scheme="tealblues")),
+                    tooltip=["展碁業務", alt.Tooltip(ANALYSIS_VALUE_COL, format=",.0f")],
+                )
+                .properties(height=480),
+                use_container_width=True,
+            )
+
+    with c8:
+        st.markdown('<div style="font-size:0.78rem; font-weight:700; color:#1565c0; margin-bottom:0.4rem; padding-left:2px;">🔄 訂閱動作分析：各訂閱動作金額</div>', unsafe_allow_html=True)
+        action_sum = df_filtered.groupby("訂閱動作", dropna=False)[ANALYSIS_VALUE_COL].sum().reset_index()
+        action_sum["訂閱動作"] = action_sum["訂閱動作"].astype(str).replace({"nan": "未填"})
+        action_sum[ANALYSIS_VALUE_COL] = pd.to_numeric(action_sum[ANALYSIS_VALUE_COL], errors="coerce").fillna(0)
+        action_sum = action_sum.sort_values(ANALYSIS_VALUE_COL, ascending=False)
+        if action_sum.empty:
+            st.info("無資料可顯示")
+        else:
+            st.altair_chart(
+                alt.Chart(action_sum)
+                .mark_bar(cornerRadiusTopRight=4, cornerRadiusBottomRight=4)
+                .encode(
+                    x=alt.X(ANALYSIS_VALUE_COL, title="金額", axis=alt.Axis(format=",.0s", labelFontSize=10)),
+                    y=alt.Y("訂閱動作:N", sort="-x", title="訂閱動作", axis=alt.Axis(labelFontSize=11)),
+                    color=alt.Color("訂閱動作:N", legend=None, scale=alt.Scale(scheme="purples")),
+                    tooltip=["訂閱動作", alt.Tooltip(ANALYSIS_VALUE_COL, format=",.0f")],
+                )
+                .properties(height=480),
+                use_container_width=True,
+            )
 
 
 
 
-c4, c5 = st.columns([1, 2])
-# -------------------------------------------------
-# 4 🆕 新增：Top 15 商品名稱（金額）
-# -------------------------------------------------
-with c4:
-    st.caption("Bar：Top 15 商品名稱（金額）")
+    st.divider()
 
-    prod_amt = (
-        df_filtered.groupby("商品名稱", dropna=False)[ANALYSIS_VALUE_COL]
-        .sum()
-        .sort_values(ascending=False)
-        .head(15)
+    # ---------------------------
+    # 12) 明細表（點選後顯示浮動視窗）
+    # ---------------------------
+    st.subheader("E) 今年度明細表格（點選資料列後顯示 Email）")
+    show_filter_ranges_if_enabled(ui_state)
+    st.caption("提示：勾選一筆明細列會顯示 Email 浮動視窗；取消勾選即可關閉。")
+
+    if "detail_editor_version" not in st.session_state:
+        st.session_state["detail_editor_version"] = 0
+
+    # ✅ 今年度明細（維持既有勾選/浮動視窗行為）
+    editor_key_this = f"detail_editor_{st.session_state['detail_editor_version']}"
+    edited_this, selected_row_key = render_detail_table(df_filtered, editor_key_this, selectable=True)
+
+    if st.session_state.get("skip_selection_once"):
+        selected_row_key = None
+        st.session_state["skip_selection_once"] = False
+
+    # ✅ 明年度明細（複製一份相同表格：欄位與格示一樣；範圍為原篩選+1年；不影響既有功能）
+    st.divider()
+    st.subheader("E) 明年度明細表格（原篩選範圍 +1 年；若尚無明年度資料則視為 0）")
+    show_filter_ranges_if_enabled(ui_state)
+    st.caption("此表為今年度明細表格的複製版（欄位與格示一致），資料範圍為原篩選條件 +1 年。")
+
+    # 使用獨立 key，且不提供勾選互動（避免干擾既有 overlay 行為）
+    editor_key_next = f"detail_editor_next_{st.session_state['detail_editor_version']}"
+    _edited_next, _ = render_detail_table(df_filtered_next, editor_key_next, selectable=False)
+
+    # ==========================================================
+    # ✅ 12) 明細表格下的兩個區域
+    # ==========================================================
+    st.divider()
+
+    # ---------------------------
+    # F) 年度總額（改為以「成交價未稅小計」分析 + 明年度(範圍+1年) + 差異）
+    # ---------------------------
+    st.subheader(f"F) 年度總額（以「{ANALYSIS_VALUE_COL}」分析）")
+    show_filter_ranges_if_enabled(ui_state)
+
+    this_total = float(pd.to_numeric(df_filtered[ANALYSIS_VALUE_COL], errors="coerce").fillna(0).sum()) if (df_filtered is not None and not df_filtered.empty) else 0.0
+    next_total = float(pd.to_numeric(df_filtered_next[ANALYSIS_VALUE_COL], errors="coerce").fillna(0).sum()) if (df_filtered_next is not None and not df_filtered_next.empty) else 0.0
+    diff_total = next_total - this_total
+
+    a1, a2, a3 = st.columns(3)
+    a1.metric("今年度總額", format_money(this_total))
+    a2.metric("明年度總額（原篩選範圍 +1 年）", format_money(next_total))
+    a3.metric("年度總額差異（明年 - 今年）", format_signed_money(diff_total))
+
+    st.divider()
+
+    # ---------------------------
+    # 12-B) 分組明細表（大綱模式）
+    # Group By：最終客戶 > 訂閱到期日年度 > 訂閱動作 > 訂閱到期日
+    # ✅ 12-B 今年度標題紫色字體
+    # ✅ 兩份分組明細表均依「訂閱總金額」由高至低排序（已於 build_grouped_detail_report_v2 實作）
+    # ---------------------------
+    st.markdown(
+        f'''<div style="
+            background: linear-gradient(135deg, {PURPLE_COLOR}15 0%, {PURPLE_COLOR}08 100%);
+            border-left: 4px solid {PURPLE_COLOR};
+            border-radius: 0 8px 8px 0;
+            padding: 0.6rem 1rem;
+            margin: 0.5rem 0;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: {PURPLE_COLOR};
+            font-family: 'Noto Sans TC', sans-serif;
+            letter-spacing: -0.2px;
+        ">F) 今年度分組明細表（Grouped Detail Report）</div>''',
+        unsafe_allow_html=True,
+    )
+    show_filter_ranges_if_enabled(ui_state)
+    st.caption("大綱模式：每個【最終客戶 + 年度】先顯示一列 Header（客戶/年度/訂閱總金額），下方列出訂閱動作/到期日/單筆金額等明細。")
+
+    # ----------------------------------------------------------
+    # ✅ 依「Header（最終客戶 + 到期年度）」產生 Email 範例（仿照 12) 明細表格）
+    # ✅ 新增：電話訪談勾選欄位 → 右下方浮動視窗顯示口語化訪談腳本
+    # ----------------------------------------------------------
+    st.caption("操作：勾選下表任一 Header（最終客戶 + 到期年度）即可產生 Email 範例或電話訪談腳本；「未續約示警」除原本 15/30/45/60/90 天提醒外，若明年度已有續約資訊則顯示「已續約」，若明年度尚無續約且已超過到期日但未超過 30 天則顯示「寬限期」，超過 30 天則顯示「已到期」；取消勾選即可關閉視窗。")
+
+
+    def _first_non_empty(series: pd.Series) -> str:
+        if series is None:
+            return ""
+        s = series.dropna().astype(str)
+        s = s[s.str.strip() != ""]
+        return s.iloc[0] if not s.empty else ""
+
+
+    headers_this = (
+        df_filtered.groupby(["最終客戶", EXPIRY_YEAR_COL], dropna=False)
+        .agg(
+            訂閱總金額=(ANALYSIS_VALUE_COL, "sum"),
+            最近到期日=("訂閱到期日", "min"),
+            客戶微軟網域=("客戶微軟網域", _first_non_empty),
+            經銷商=("經銷商", _first_non_empty),
+            展碁業務=("展碁業務", _first_non_empty),
+        )
         .reset_index()
     )
 
-    prod_amt[ANALYSIS_VALUE_COL] = pd.to_numeric(prod_amt[ANALYSIS_VALUE_COL], errors="coerce").fillna(0)
+    if not headers_this.empty:
+        headers_view = headers_this.copy()
+        headers_view["訂閱總金額"] = pd.to_numeric(headers_view["訂閱總金額"], errors="coerce").fillna(0)
+        _header_renewal_lookup = build_group_renewal_lookup(df_filtered_next)
 
-    if prod_amt.empty:
-        st.info("無資料可顯示")
-    else:
-        st.altair_chart(
-            alt.Chart(prod_amt)
-            .mark_bar()
-            .encode(
-                x=alt.X(ANALYSIS_VALUE_COL, title="金額"),
-                y=alt.Y("商品名稱:N", sort="-x"),
-                tooltip=["商品名稱", alt.Tooltip(ANALYSIS_VALUE_COL, format=",.0f")],
+        def _compute_header_warning_meta(row: pd.Series) -> pd.Series:
+            warning_text, warning_color, warning_threshold = get_group_warning_meta_with_renewal(
+                min_expiry_dt=row.get("最近到期日", pd.NaT),
+                current_total=row.get("訂閱總金額", 0),
+                customer=row.get("最終客戶", ""),
+                expiry_year=row.get(EXPIRY_YEAR_COL, pd.NA),
+                renewal_lookup=_header_renewal_lookup,
             )
-            .properties(height=320),
+            return pd.Series(
+                {
+                    "未續約示警": warning_text,
+                    "_warning_color": warning_color,
+                    "_warning_threshold": warning_threshold,
+                    "未續約示警顯示": format_warning_display_text(warning_text, warning_color, warning_threshold),
+                }
+            )
+
+        headers_view = pd.concat([headers_view, headers_view.apply(_compute_header_warning_meta, axis=1)], axis=1)
+        headers_view = headers_view.drop(columns=["最近到期日"], errors="ignore")
+
+        ordered_cols = [
+            "未續約示警顯示",
+            "最終客戶",
+            EXPIRY_YEAR_COL,
+            "訂閱總金額",
+            "客戶微軟網域",
+            "經銷商",
+            "展碁業務",
+            "未續約示警",
+            "_warning_color",
+            "_warning_threshold",
+        ]
+        headers_view = headers_view[[c for c in ordered_cols if c in headers_view.columns]]
+
+        # ✅ Header 清單也依訂閱總金額排序（與分組表一致）
+        headers_view = headers_view.sort_values("訂閱總金額", ascending=False).reset_index(drop=True)
+
+        # ✅ 套用「未續約示警篩選」（sidebar 多選）
+        _warning_filter = st.session_state.get("warning_filter_pick", [])
+        if _warning_filter and isinstance(_warning_filter, list) and len(_warning_filter) > 0 and "未續約示警顯示" in headers_view.columns:
+            _wf_stripped = [w.strip() for w in _warning_filter]
+            headers_view = headers_view[
+                headers_view["未續約示警顯示"].astype(str).str.strip().isin(_wf_stripped)
+            ].reset_index(drop=True)
+
+        # ✅ 兩個勾選欄位：Email（原本）+ 電話訪談（新增）
+        headers_view.insert(0, "選取", False)
+        headers_view.insert(1, "電話訪談", False)
+
+        header_editor_key = f"group_header_editor_this_{st.session_state.get('detail_editor_version', 0)}"
+        edited_headers = st.data_editor(
+            headers_view,
             use_container_width=True,
-        )
-with c5:
-    st.caption("商品名稱：Top 15（金額以及數量之增減｜今年度 vs 明年度）")
-
-    # 依本年度金額排序取 Top15 商品
-    prod_amt_this = df_filtered.groupby("商品名稱", dropna=False)[ANALYSIS_VALUE_COL].sum()
-    prod_amt_this = pd.to_numeric(prod_amt_this, errors="coerce").fillna(0).sort_values(ascending=False)
-    top_products = prod_amt_this.head(15).index.tolist()
-
-    if not top_products:
-        st.info("無資料可顯示")
-    else:
-
-        # ===== 金額 =====
-        amt_this = prod_amt_this.reindex(top_products, fill_value=0).reset_index()
-        amt_this.columns = ["商品名稱", "金額_本年度"]
-
-        prod_amt_next = df_filtered_next.groupby("商品名稱", dropna=False)[ANALYSIS_VALUE_COL].sum()
-        prod_amt_next = pd.to_numeric(prod_amt_next, errors="coerce").fillna(0)
-        amt_next = prod_amt_next.reindex(top_products, fill_value=0).reset_index()
-        amt_next.columns = ["商品名稱", "金額_明年度"]
-
-        merged = amt_this.merge(amt_next, on="商品名稱", how="outer").fillna(0)
-        merged["金額_差異"] = merged["金額_明年度"] - merged["金額_本年度"]
-
-        # ===== 數量 =====
-        qty_this = df_filtered.groupby("商品名稱", dropna=False)["數量"].sum()
-        qty_this = pd.to_numeric(qty_this, errors="coerce").fillna(0)
-        qty_this = qty_this.reindex(top_products, fill_value=0).reset_index()
-        qty_this.columns = ["商品名稱", "數量_本年度"]
-
-        qty_next = df_filtered_next.groupby("商品名稱", dropna=False)["數量"].sum()
-        qty_next = pd.to_numeric(qty_next, errors="coerce").fillna(0)
-        qty_next = qty_next.reindex(top_products, fill_value=0).reset_index()
-        qty_next.columns = ["商品名稱", "數量_明年度"]
-
-        merged = merged.merge(qty_this, on="商品名稱", how="left")
-        merged = merged.merge(qty_next, on="商品名稱", how="left")
-        merged["數量_差異"] = merged["數量_明年度"] - merged["數量_本年度"]
-
-        merged = merged.sort_values("金額_本年度", ascending=False)
-        # ✅ 讓「差異直條圖」X 軸改顯示差異數值（取代商品名稱）
-        merged["金額差異_label"] = merged["金額_差異"].apply(lambda v: format_signed_money(v))
-        merged["數量差異_label"] = merged["數量_差異"].apply(lambda v: format_signed_int(v))
-        sort_list = merged["商品名稱"].tolist()
-        sort_list_amt_diff = merged["金額差異_label"].tolist()
-        sort_list_qty_diff = merged["數量差異_label"].tolist()
-
-        # ------------------------
-        # 金額雙線圖
-        # ------------------------
-        line_amt_df = pd.concat([
-            merged[["商品名稱", "金額_本年度"]].rename(columns={"金額_本年度": "值"}).assign(年度="本年度"),
-            merged[["商品名稱", "金額_明年度"]].rename(columns={"金額_明年度": "值"}).assign(年度="明年度")
-        ])
-
-        line_amt = (
-            alt.Chart(line_amt_df)
-            .mark_line(point=True)
-            .encode(
-                x=alt.X("商品名稱:O", sort=sort_list),
-                y=alt.Y("值:Q", title="金額"),
-                color=alt.Color("年度:N"),
-                tooltip=["年度", "商品名稱", alt.Tooltip("值:Q", format=",.0f")]
-            )
-            .properties(height=150)
+            hide_index=True,
+            # 僅開放「選取」與「電話訪談」兩欄可勾選，其他欄位維持不可編輯（避免影響既有 UI/行為）
+            disabled=[c for c in headers_view.columns if c not in {"選取", "電話訪談"}],
+            column_config={
+                "選取": st.column_config.CheckboxColumn(help="勾選一筆 Header 以產生 Email", default=False),
+                "電話訪談": st.column_config.CheckboxColumn(help="勾選一筆 Header 以產生電話訪談口語腳本", default=False),
+                "未續約示警顯示": st.column_config.TextColumn("未續約示警", help="🟢 已續約：明年度金額 <= 今年度；🔴 已續約：明年度金額 > 今年度；🟤 寬限期：已過到期日但未超過 30 天；其餘為天數提醒"),
+                "未續約示警": None,
+                "_warning_color": None,
+                "_warning_threshold": None,
+            },
+            key=header_editor_key,
         )
 
-        bar_amt = (
-            alt.Chart(merged)
-            .mark_bar()
-            .encode(
-                # ✅ X 軸改用「金額差異_label」(顯示差異數值)，不再顯示商品名稱
-                x=alt.X("金額差異_label:O", sort=sort_list_amt_diff, title="金額差異（明-今）"),
-                y=alt.Y("金額_差異:Q", title="金額差異（明-今）"),
-                color=alt.condition(
-                    alt.datum.金額_差異 >= 0,
-                    alt.value("#6A0DAD"),
-                    alt.value("#DC143C")
-                ),
-                # ✅ Tooltip：商品名稱、金額_本年度、金額_明年度、金額_差異（依你指定的順序）
-                tooltip=[
-                    alt.Tooltip("商品名稱:N", title="商品名稱"),
-                    alt.Tooltip("金額_本年度:Q", title="金額_本年度", format=",.0f"),
-                    alt.Tooltip("金額_明年度:Q", title="金額_明年度", format=",.0f"),
-                    alt.Tooltip("金額_差異:Q", title="金額_差異（明-今）", format=",.0f"),
-                ],
-            )
-            .properties(height=150)
-        )
+        # ---------------------------
+        # 勾選判斷：優先顯示「電話訪談」視窗（避免同一時間多視窗重疊）
+        # ---------------------------
+        selected_customer = None
+        selected_year = None
+        selected_mode = None  # "CALL" | "EMAIL"
 
-        # ------------------------
-        # 數量雙線圖
-        # ------------------------
-        line_qty_df = pd.concat([
-            merged[["商品名稱", "數量_本年度"]].rename(columns={"數量_本年度": "值"}).assign(年度="本年度"),
-            merged[["商品名稱", "數量_明年度"]].rename(columns={"數量_明年度": "值"}).assign(年度="明年度")
-        ])
+        if edited_headers is not None:
+            sel_call = edited_headers.loc[edited_headers["電話訪談"] == True] if "電話訪談" in edited_headers.columns else pd.DataFrame()
+            if sel_call is not None and not sel_call.empty:
+                selected_customer = sel_call.iloc[0].get("最終客戶")
+                selected_year = sel_call.iloc[0].get(EXPIRY_YEAR_COL)
+                selected_mode = "CALL"
+            else:
+                sel_email = edited_headers.loc[edited_headers["選取"] == True] if "選取" in edited_headers.columns else pd.DataFrame()
+                if sel_email is not None and not sel_email.empty:
+                    selected_customer = sel_email.iloc[0].get("最終客戶")
+                    selected_year = sel_email.iloc[0].get(EXPIRY_YEAR_COL)
+                    selected_mode = "EMAIL"
 
-        line_qty = (
-            alt.Chart(line_qty_df)
-            .mark_line(point=True)
-            .encode(
-                x=alt.X("商品名稱:O", sort=sort_list),
-                y=alt.Y("值:Q", title="數量"),
-                color=alt.Color("年度:N", scale=alt.Scale(range=["#2E8B57", "#FF8C00"])),
-                tooltip=["年度", "商品名稱", "值"]
-            )
-            .properties(height=150)
-        )
+        if selected_customer is not None and selected_year is not None and selected_mode == "EMAIL":
+            sig = (str(selected_customer), str(selected_year))
+            if st.session_state.get("group_last_selected_sig") != sig:
+                txt, subj, mlink = build_group_email_from_header(df_filtered, selected_customer, selected_year)
+                st.session_state["group_email_text"] = txt
+                st.session_state["group_email_subject"] = subj
+                st.session_state["group_mailto_link"] = mlink
+                st.session_state["group_last_selected_sig"] = sig
+            st.session_state["group_selected_sig"] = sig
 
-        bar_qty = (
-            alt.Chart(merged)
-            .mark_bar()
-            .encode(
-                x=alt.X("商品名稱:N", sort=sort_list, title="商品名稱"),
-                y=alt.Y("數量_差異:Q", title="數量差異（明-今）"),
-                color=alt.condition(
-                    alt.datum.數量_差異 >= 0,
-                    alt.value("#2E8B57"),
-                    alt.value("#B22222")
-                ),
-                tooltip=[
-                    alt.Tooltip("商品名稱:N", title="商品名稱"),
-                    alt.Tooltip("數量_本年度:Q", title="數量_本年度", format=",.0f"),
-                    alt.Tooltip("數量_明年度:Q", title="數量_明年度", format=",.0f"),
-                    alt.Tooltip("數量_差異:Q", title="數量_差異（明-今）", format=",.0f"),
-                ],
-            )
-            .properties(height=150)
-        )
+            # ✅ 清掉電話訪談狀態（避免兩種視窗互相干擾）
+            st.session_state["group_call_selected_sig"] = None
+            st.session_state["group_call_text"] = ""
+            st.session_state["group_call_last_selected_sig"] = None
 
-        left_block = alt.vconcat(
-            line_amt,
-            bar_amt
-        )
+        elif selected_customer is not None and selected_year is not None and selected_mode == "CALL":
+            sig = (str(selected_customer), str(selected_year))
+            if st.session_state.get("group_call_last_selected_sig") != sig:
+                st.session_state["group_call_text"] = build_group_call_script_from_header(df_filtered, selected_customer, selected_year)
+                st.session_state["group_call_last_selected_sig"] = sig
+            st.session_state["group_call_selected_sig"] = sig
 
-        right_block = alt.vconcat(
-            line_qty,
-            bar_qty
-        )
+            # ✅ 清掉 Email 狀態（避免兩種視窗互相干擾）
+            st.session_state["group_selected_sig"] = None
+            st.session_state["group_email_text"] = ""
+            st.session_state["group_email_subject"] = ""
+            st.session_state["group_mailto_link"] = ""
+            st.session_state["group_last_selected_sig"] = None
 
-        final_chart = alt.hconcat(
-            left_block,
-            right_block
-        ).resolve_scale(color="independent")
-
-        st.altair_chart(final_chart, use_container_width=True)
-
-
-
-c7, c8 = st.columns(2)
-with c7:
-    st.caption("業務人員分析：各展碁業務金額")
-    sales_sum = df_filtered.groupby("展碁業務", dropna=False)[ANALYSIS_VALUE_COL].sum().reset_index()
-    sales_sum["展碁業務"] = sales_sum["展碁業務"].astype(str).replace({"nan": "未填"})
-    sales_sum[ANALYSIS_VALUE_COL] = pd.to_numeric(sales_sum[ANALYSIS_VALUE_COL], errors="coerce").fillna(0)
-    sales_sum = sales_sum.sort_values(ANALYSIS_VALUE_COL, ascending=False).head(20)
-    if sales_sum.empty:
-        st.info("無資料可顯示")
-    else:
-        st.altair_chart(
-            alt.Chart(sales_sum)
-            .mark_bar()
-            .encode(
-                x=alt.X(ANALYSIS_VALUE_COL, title="金額"),
-                y=alt.Y("展碁業務:N", sort="-x", title="展碁業務"),
-                color=alt.Color("展碁業務:N", legend=None),
-                tooltip=["展碁業務", alt.Tooltip(ANALYSIS_VALUE_COL, format=",.0f")],
-            )
-            .properties(height=420),
-            use_container_width=True,
-        )
-
-with c8:
-    st.caption("訂閱動作分析：各訂閱動作金額")
-    action_sum = df_filtered.groupby("訂閱動作", dropna=False)[ANALYSIS_VALUE_COL].sum().reset_index()
-    action_sum["訂閱動作"] = action_sum["訂閱動作"].astype(str).replace({"nan": "未填"})
-    action_sum[ANALYSIS_VALUE_COL] = pd.to_numeric(action_sum[ANALYSIS_VALUE_COL], errors="coerce").fillna(0)
-    action_sum = action_sum.sort_values(ANALYSIS_VALUE_COL, ascending=False)
-    if action_sum.empty:
-        st.info("無資料可顯示")
-    else:
-        st.altair_chart(
-            alt.Chart(action_sum)
-            .mark_bar()
-            .encode(
-                x=alt.X(ANALYSIS_VALUE_COL, title="金額"),
-                y=alt.Y("訂閱動作:N", sort="-x", title="訂閱動作"),
-                color=alt.Color("訂閱動作:N", legend=None),
-                tooltip=["訂閱動作", alt.Tooltip(ANALYSIS_VALUE_COL, format=",.0f")],
-            )
-            .properties(height=420),
-            use_container_width=True,
-        )
-
-
-
-
-st.divider()
-
-# ---------------------------
-# 12) 明細表（點選後顯示浮動視窗）
-# ---------------------------
-st.subheader("12) 今年度明細表格（點選資料列後顯示 Email）")
-show_filter_ranges_if_enabled(ui_state)
-st.caption("提示：勾選一筆明細列會顯示 Email 浮動視窗；取消勾選即可關閉。")
-
-if "detail_editor_version" not in st.session_state:
-    st.session_state["detail_editor_version"] = 0
-
-# ✅ 今年度明細（維持既有勾選/浮動視窗行為）
-editor_key_this = f"detail_editor_{st.session_state['detail_editor_version']}"
-edited_this, selected_row_key = render_detail_table(df_filtered, editor_key_this, selectable=True)
-
-if st.session_state.get("skip_selection_once"):
-    selected_row_key = None
-    st.session_state["skip_selection_once"] = False
-
-# ✅ 明年度明細（複製一份相同表格：欄位與格示一樣；範圍為原篩選+1年；不影響既有功能）
-st.divider()
-st.subheader("12) 明年度明細表格（原篩選範圍 +1 年；若尚無明年度資料則視為 0）")
-show_filter_ranges_if_enabled(ui_state)
-st.caption("此表為今年度明細表格的複製版（欄位與格示一致），資料範圍為原篩選條件 +1 年。")
-
-# 使用獨立 key，且不提供勾選互動（避免干擾既有 overlay 行為）
-editor_key_next = f"detail_editor_next_{st.session_state['detail_editor_version']}"
-_edited_next, _ = render_detail_table(df_filtered_next, editor_key_next, selectable=False)
-
-# ==========================================================
-# ✅ 12) 明細表格下的兩個區域
-# ==========================================================
-st.divider()
-
-# ---------------------------
-# 12-A) 年度總額（改為以「成交價未稅小計」分析 + 明年度(範圍+1年) + 差異）
-# ---------------------------
-st.subheader(f"12-A) 年度總額（以「{ANALYSIS_VALUE_COL}」分析）")
-show_filter_ranges_if_enabled(ui_state)
-
-this_total = float(pd.to_numeric(df_filtered[ANALYSIS_VALUE_COL], errors="coerce").fillna(0).sum()) if (df_filtered is not None and not df_filtered.empty) else 0.0
-next_total = float(pd.to_numeric(df_filtered_next[ANALYSIS_VALUE_COL], errors="coerce").fillna(0).sum()) if (df_filtered_next is not None and not df_filtered_next.empty) else 0.0
-diff_total = next_total - this_total
-
-a1, a2, a3 = st.columns(3)
-a1.metric("今年度總額", format_money(this_total))
-a2.metric("明年度總額（原篩選範圍 +1 年）", format_money(next_total))
-a3.metric("年度總額差異（明年 - 今年）", format_signed_money(diff_total))
-
-st.divider()
-
-# ---------------------------
-# 12-B) 分組明細表（大綱模式）
-# Group By：最終客戶 > 訂閱到期日年度 > 訂閱動作 > 訂閱到期日
-# ✅ 12-B 今年度標題紫色字體
-# ✅ 兩份分組明細表均依「訂閱總金額」由高至低排序（已於 build_grouped_detail_report_v2 實作）
-# ---------------------------
-st.markdown(
-    f'<div style="font-size: 1.35rem; font-weight: 800; color:{PURPLE_COLOR};">12-B) 今年度分組明細表（Grouped Detail Report）</div>',
-    unsafe_allow_html=True,
-)
-show_filter_ranges_if_enabled(ui_state)
-st.caption("大綱模式：每個【最終客戶 + 年度】先顯示一列 Header（客戶/年度/訂閱總金額），下方列出訂閱動作/到期日/單筆金額等明細。")
-
-# ----------------------------------------------------------
-# ✅ 依「Header（最終客戶 + 到期年度）」產生 Email 範例（仿照 12) 明細表格）
-# ✅ 新增：電話訪談勾選欄位 → 右下方浮動視窗顯示口語化訪談腳本
-# ----------------------------------------------------------
-st.caption("操作：勾選下表任一 Header（最終客戶 + 到期年度）即可產生 Email 範例或電話訪談腳本；「未續約示警」除原本 15/30/45/60/90 天提醒外，若明年度已有續約資訊則顯示「已續約」，且明年度金額 <= 今年度為綠色、明年度金額 > 今年度為紅色；取消勾選即可關閉視窗。")
-
-
-def _first_non_empty(series: pd.Series) -> str:
-    if series is None:
-        return ""
-    s = series.dropna().astype(str)
-    s = s[s.str.strip() != ""]
-    return s.iloc[0] if not s.empty else ""
-
-
-headers_this = (
-    df_filtered.groupby(["最終客戶", EXPIRY_YEAR_COL], dropna=False)
-    .agg(
-        訂閱總金額=(ANALYSIS_VALUE_COL, "sum"),
-        最近到期日=("訂閱到期日", "min"),
-        客戶微軟網域=("客戶微軟網域", _first_non_empty),
-        經銷商=("經銷商", _first_non_empty),
-        展碁業務=("展碁業務", _first_non_empty),
-    )
-    .reset_index()
-)
-
-if not headers_this.empty:
-    headers_view = headers_this.copy()
-    headers_view["訂閱總金額"] = pd.to_numeric(headers_view["訂閱總金額"], errors="coerce").fillna(0)
-    _header_renewal_lookup = build_group_renewal_lookup(df_filtered_next)
-
-    def _compute_header_warning_meta(row: pd.Series) -> pd.Series:
-        warning_text, warning_color, warning_threshold = get_group_warning_meta_with_renewal(
-            min_expiry_dt=row.get("最近到期日", pd.NaT),
-            current_total=row.get("訂閱總金額", 0),
-            customer=row.get("最終客戶", ""),
-            expiry_year=row.get(EXPIRY_YEAR_COL, pd.NA),
-            renewal_lookup=_header_renewal_lookup,
-        )
-        return pd.Series(
-            {
-                "未續約示警": warning_text,
-                "_warning_color": warning_color,
-                "_warning_threshold": warning_threshold,
-                "未續約示警顯示": format_warning_display_text(warning_text, warning_color, warning_threshold),
-            }
-        )
-
-    headers_view = pd.concat([headers_view, headers_view.apply(_compute_header_warning_meta, axis=1)], axis=1)
-    headers_view = headers_view.drop(columns=["最近到期日"], errors="ignore")
-
-    ordered_cols = [
-        "未續約示警顯示",
-        "最終客戶",
-        EXPIRY_YEAR_COL,
-        "訂閱總金額",
-        "客戶微軟網域",
-        "經銷商",
-        "展碁業務",
-        "未續約示警",
-        "_warning_color",
-        "_warning_threshold",
-    ]
-    headers_view = headers_view[[c for c in ordered_cols if c in headers_view.columns]]
-
-    # ✅ Header 清單也依訂閱總金額排序（與分組表一致）
-    headers_view = headers_view.sort_values("訂閱總金額", ascending=False).reset_index(drop=True)
-
-    # ✅ 兩個勾選欄位：Email（原本）+ 電話訪談（新增）
-    headers_view.insert(0, "選取", False)
-    headers_view.insert(1, "電話訪談", False)
-
-    header_editor_key = f"group_header_editor_this_{st.session_state.get('detail_editor_version', 0)}"
-    edited_headers = st.data_editor(
-        headers_view,
-        use_container_width=True,
-        hide_index=True,
-        # 僅開放「選取」與「電話訪談」兩欄可勾選，其他欄位維持不可編輯（避免影響既有 UI/行為）
-        disabled=[c for c in headers_view.columns if c not in {"選取", "電話訪談"}],
-        column_config={
-            "選取": st.column_config.CheckboxColumn(help="勾選一筆 Header 以產生 Email", default=False),
-            "電話訪談": st.column_config.CheckboxColumn(help="勾選一筆 Header 以產生電話訪談口語腳本", default=False),
-            "未續約示警顯示": st.column_config.TextColumn("未續約示警", help="🟢 已續約：明年度金額 <= 今年度；🔴 已續約：明年度金額 > 今年度；其餘為天數提醒"),
-            "未續約示警": None,
-            "_warning_color": None,
-            "_warning_threshold": None,
-        },
-        key=header_editor_key,
-    )
-
-    # ---------------------------
-    # 勾選判斷：優先顯示「電話訪談」視窗（避免同一時間多視窗重疊）
-    # ---------------------------
-    selected_customer = None
-    selected_year = None
-    selected_mode = None  # "CALL" | "EMAIL"
-
-    if edited_headers is not None:
-        sel_call = edited_headers.loc[edited_headers["電話訪談"] == True] if "電話訪談" in edited_headers.columns else pd.DataFrame()
-        if sel_call is not None and not sel_call.empty:
-            selected_customer = sel_call.iloc[0].get("最終客戶")
-            selected_year = sel_call.iloc[0].get(EXPIRY_YEAR_COL)
-            selected_mode = "CALL"
         else:
-            sel_email = edited_headers.loc[edited_headers["選取"] == True] if "選取" in edited_headers.columns else pd.DataFrame()
-            if sel_email is not None and not sel_email.empty:
-                selected_customer = sel_email.iloc[0].get("最終客戶")
-                selected_year = sel_email.iloc[0].get(EXPIRY_YEAR_COL)
-                selected_mode = "EMAIL"
+            # 都沒勾選：兩種視窗都關閉
+            st.session_state["group_selected_sig"] = None
+            st.session_state["group_email_text"] = ""
+            st.session_state["group_email_subject"] = ""
+            st.session_state["group_mailto_link"] = ""
+            st.session_state["group_last_selected_sig"] = None
 
-    if selected_customer is not None and selected_year is not None and selected_mode == "EMAIL":
-        sig = (str(selected_customer), str(selected_year))
-        if st.session_state.get("group_last_selected_sig") != sig:
-            txt, subj, mlink = build_group_email_from_header(df_filtered, selected_customer, selected_year)
-            st.session_state["group_email_text"] = txt
-            st.session_state["group_email_subject"] = subj
-            st.session_state["group_mailto_link"] = mlink
-            st.session_state["group_last_selected_sig"] = sig
-        st.session_state["group_selected_sig"] = sig
-
-        # ✅ 清掉電話訪談狀態（避免兩種視窗互相干擾）
-        st.session_state["group_call_selected_sig"] = None
-        st.session_state["group_call_text"] = ""
-        st.session_state["group_call_last_selected_sig"] = None
-
-    elif selected_customer is not None and selected_year is not None and selected_mode == "CALL":
-        sig = (str(selected_customer), str(selected_year))
-        if st.session_state.get("group_call_last_selected_sig") != sig:
-            st.session_state["group_call_text"] = build_group_call_script_from_header(df_filtered, selected_customer, selected_year)
-            st.session_state["group_call_last_selected_sig"] = sig
-        st.session_state["group_call_selected_sig"] = sig
-
-        # ✅ 清掉 Email 狀態（避免兩種視窗互相干擾）
-        st.session_state["group_selected_sig"] = None
-        st.session_state["group_email_text"] = ""
-        st.session_state["group_email_subject"] = ""
-        st.session_state["group_mailto_link"] = ""
-        st.session_state["group_last_selected_sig"] = None
-
+            st.session_state["group_call_selected_sig"] = None
+            st.session_state["group_call_text"] = ""
+            st.session_state["group_call_last_selected_sig"] = None
     else:
-        # 都沒勾選：兩種視窗都關閉
-        st.session_state["group_selected_sig"] = None
-        st.session_state["group_email_text"] = ""
-        st.session_state["group_email_subject"] = ""
-        st.session_state["group_mailto_link"] = ""
-        st.session_state["group_last_selected_sig"] = None
+        st.info("無 Header 可選（此區塊視為 0）")
 
-        st.session_state["group_call_selected_sig"] = None
-        st.session_state["group_call_text"] = ""
-        st.session_state["group_call_last_selected_sig"] = None
-else:
-    st.info("無 Header 可選（此區塊視為 0）")
+    # 仍保留原本的大綱分組明細表（顯示用）
+    render_grouped_table(df_filtered, df_next=df_filtered_next)
 
-# 仍保留原本的大綱分組明細表（顯示用）
-render_grouped_table(df_filtered, df_next=df_filtered_next)
+    st.divider()
 
-st.divider()
+    st.subheader("F) 明年度分組明細表（原篩選範圍 +1 年；若尚無明年度資料則視為 0）")
+    show_filter_ranges_if_enabled(ui_state)
+    st.caption("此表為今年度分組明細表的複製版（欄位與格示一致），資料範圍為原篩選條件 +1 年。")
+    render_grouped_table(df_filtered_next)
 
-st.subheader("12-B) 明年度分組明細表（原篩選範圍 +1 年；若尚無明年度資料則視為 0）")
-show_filter_ranges_if_enabled(ui_state)
-st.caption("此表為今年度分組明細表的複製版（欄位與格示一致），資料範圍為原篩選條件 +1 年。")
-render_grouped_table(df_filtered_next)
+    # ---------------------------
+    # 浮動視窗（純 HTML overlay，不占位，不推擠）
+    # ---------------------------
+    st.markdown(
+        """
+        <style>
+        html, body { overflow-x: hidden !important; max-width: 100% !important; }
+        .stApp, .main, section.main, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
+            overflow-x: hidden !important;
+            max-width: 100% !important;
+        }
+        pre, code, .stMarkdown pre, .stMarkdown code {
+            white-space: pre-wrap !important;
+            overflow-wrap: anywhere !important;
+            word-break: break-word !important;
+            overflow-x: hidden !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
 
-# ---------------------------
-# 浮動視窗（純 HTML overlay，不占位，不推擠）
-# ---------------------------
-st.markdown(
-    """
-    <style>
-    html, body { overflow-x: hidden !important; max-width: 100% !important; }
-    .stApp, .main, section.main, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
-        overflow-x: hidden !important;
-        max-width: 100% !important;
-    }
-    pre, code, .stMarkdown pre, .stMarkdown code {
-        white-space: pre-wrap !important;
-        overflow-wrap: anywhere !important;
-        word-break: break-word !important;
-        overflow-x: hidden !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-    }
+        /* 12) 明細 Email overlay（原本既有：右下） */
+        #emailOverlay {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: min(900px, 48vw, calc(100vw - 48px));
+            max-width: calc(100vw - 48px);
+            min-width: 0;
+            height: 72vh;
+            z-index: 2147483000;
+            background: rgba(255,255,255,0.97);
+            border: none;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.18), 0 0 0 1px rgba(21,101,192,0.1);
+            border-radius: 20px;
+            padding: 16px;
+            backdrop-filter: blur(16px) saturate(1.6);
+            box-sizing: border-box;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: hidden !important;
+            overflow-x: hidden !important;
+        }
+        #emailOverlay .hdr {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex: 0 0 auto;
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+        }
+        #emailOverlay .title { font-size: 16px; font-weight: 800; line-height: 1.1; color: #1565c0; }
+        #emailOverlay .sub { opacity: .65; font-size: 12px; margin-top: 2px; }
 
-    /* 12) 明細 Email overlay（原本既有：右下） */
-    #emailOverlay {
-        position: fixed;
-        right: 24px;
-        bottom: 24px;
-        width: min(900px, 48vw, calc(100vw - 48px));
-        max-width: calc(100vw - 48px);
-        min-width: 0;
-        height: 72vh;
-        z-index: 2147483000;
-        background: rgba(255,255,255,0.98);
-        border: 1px solid rgba(0,0,0,0.12);
-        box-shadow: 0 14px 38px rgba(0,0,0,0.22);
-        border-radius: 16px;
-        padding: 14px;
-        backdrop-filter: blur(6px);
-        box-sizing: border-box;
-        display: none;
-        flex-direction: column;
-        gap: 10px;
-        overflow-y: hidden !important;
-        overflow-x: hidden !important;
-    }
-    #emailOverlay .hdr {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        flex: 0 0 auto;
-        max-width: 100% !important;
-        overflow-x: hidden !important;
-    }
-    #emailOverlay .title { font-size: 16px; font-weight: 800; line-height: 1.1; }
-    #emailOverlay .sub { opacity: .7; font-size: 12px; margin-top: 2px; }
+        #emailOverlay .body {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            background: rgba(240,245,255,0.9);
+            border-radius: 12px;
+            border: 1px solid rgba(21,101,192,0.1);
+            padding: 10px 12px 18px 12px;
+            box-sizing: border-box;
+            max-width: 100% !important;
+        }
+        #emailOverlay .emailText {
+            white-space: pre-wrap !important;
+            overflow-wrap: anywhere !important;
+            word-break: break-word !important;
+            overflow-x: hidden !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+            font-size: 13px !important;
+            line-height: 1.55 !important;
+        }
+        #emailOverlay .emailText * {
+            overflow-wrap: anywhere !important;
+            word-break: break-word !important;
+            max-width: 100% !important;
+        }
 
-    #emailOverlay .body {
-        flex: 1 1 auto;
-        min-height: 0;
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-        background: rgba(245,246,248,0.9);
-        border-radius: 12px;
-        border: 1px solid rgba(0,0,0,0.08);
-        padding: 10px 12px 18px 12px;
-        box-sizing: border-box;
-        max-width: 100% !important;
-    }
-    #emailOverlay .emailText {
-        white-space: pre-wrap !important;
-        overflow-wrap: anywhere !important;
-        word-break: break-word !important;
-        overflow-x: hidden !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
-        font-size: 13px !important;
-        line-height: 1.55 !important;
-    }
-    #emailOverlay .emailText * {
-        overflow-wrap: anywhere !important;
-        word-break: break-word !important;
-        max-width: 100% !important;
-    }
+        /* ✅ 12-B Header 彙整 Email overlay（右下、同 12) 格式、有 Email 按鈕） */
+        #groupEmailOverlay {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: min(900px, 48vw, calc(100vw - 48px));
+            max-width: calc(100vw - 48px);
+            min-width: 0;
+            height: 72vh;
+            z-index: 2147483001;
+            background: rgba(255,255,255,0.97);
+            border: none;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.18), 0 0 0 1px rgba(106,13,173,0.1);
+            border-radius: 20px;
+            padding: 16px;
+            backdrop-filter: blur(16px) saturate(1.6);
+            box-sizing: border-box;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: hidden !important;
+            overflow-x: hidden !important;
+        }
+        #groupEmailOverlay .hdr {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex: 0 0 auto;
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+        }
+        #groupEmailOverlay .title { font-size: 16px; font-weight: 800; line-height: 1.1; color: #6A0DAD; }
+        #groupEmailOverlay .sub { opacity: .65; font-size: 12px; margin-top: 2px; }
 
-    /* ✅ 12-B Header 彙整 Email overlay（右下、同 12) 格式、有 Email 按鈕） */
-    #groupEmailOverlay {
-        position: fixed;
-        right: 24px;
-        bottom: 24px;
-        width: min(900px, 48vw, calc(100vw - 48px));
-        max-width: calc(100vw - 48px);
-        min-width: 0;
-        height: 72vh;
-        z-index: 2147483001;
-        background: rgba(255,255,255,0.98);
-        border: 1px solid rgba(0,0,0,0.12);
-        box-shadow: 0 14px 38px rgba(0,0,0,0.22);
-        border-radius: 16px;
-        padding: 14px;
-        backdrop-filter: blur(6px);
-        box-sizing: border-box;
-        display: none;
-        flex-direction: column;
-        gap: 10px;
-        overflow-y: hidden !important;
-        overflow-x: hidden !important;
-    }
-    #groupEmailOverlay .hdr {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        flex: 0 0 auto;
-        max-width: 100% !important;
-        overflow-x: hidden !important;
-    }
-    #groupEmailOverlay .title { font-size: 16px; font-weight: 800; line-height: 1.1; }
-    #groupEmailOverlay .sub { opacity: .7; font-size: 12px; margin-top: 2px; }
+        #groupEmailOverlay .body {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            background: rgba(240,245,255,0.9);
+            border-radius: 12px;
+            border: 1px solid rgba(106,13,173,0.1);
+            padding: 10px 12px 18px 12px;
+            box-sizing: border-box;
+            max-width: 100% !important;
+        }
+        #groupEmailOverlay .emailText {
+            white-space: pre-wrap !important;
+            overflow-wrap: anywhere !important;
+            word-break: break-word !important;
+            overflow-x: hidden !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+            font-size: 13px !important;
+            line-height: 1.55 !important;
+        }
 
-    #groupEmailOverlay .body {
-        flex: 1 1 auto;
-        min-height: 0;
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-        background: rgba(245,246,248,0.9);
-        border-radius: 12px;
-        border: 1px solid rgba(0,0,0,0.08);
-        padding: 10px 12px 18px 12px;
-        box-sizing: border-box;
-        max-width: 100% !important;
-    }
-    #groupEmailOverlay .emailText {
-        white-space: pre-wrap !important;
-        overflow-wrap: anywhere !important;
-        word-break: break-word !important;
-        overflow-x: hidden !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
-        font-size: 13px !important;
-        line-height: 1.55 !important;
-    }
+        /* ✅ 12-B Header 電話訪談 overlay（新：右下、同 12) 格式、有 Y 軸捲軸） */
+        #groupCallOverlay {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: min(900px, 48vw, calc(100vw - 48px));
+            max-width: calc(100vw - 48px);
+            min-width: 0;
+            height: 72vh;
+            z-index: 2147483002;
+            background: rgba(255,255,255,0.98);
+            border: 1px solid rgba(0,0,0,0.12);
+            box-shadow: 0 14px 38px rgba(0,0,0,0.22);
+            border-radius: 16px;
+            padding: 14px;
+            backdrop-filter: blur(6px);
+            box-sizing: border-box;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: hidden !important;
+            overflow-x: hidden !important;
+        }
+        #groupCallOverlay .hdr {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex: 0 0 auto;
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+        }
+        #groupCallOverlay .title { font-size: 16px; font-weight: 800; line-height: 1.1; }
+        #groupCallOverlay .sub { opacity: .7; font-size: 12px; margin-top: 2px; }
 
-    /* ✅ 12-B Header 電話訪談 overlay（新：右下、同 12) 格式、有 Y 軸捲軸） */
-    #groupCallOverlay {
-        position: fixed;
-        right: 24px;
-        bottom: 24px;
-        width: min(900px, 48vw, calc(100vw - 48px));
-        max-width: calc(100vw - 48px);
-        min-width: 0;
-        height: 72vh;
-        z-index: 2147483002;
-        background: rgba(255,255,255,0.98);
-        border: 1px solid rgba(0,0,0,0.12);
-        box-shadow: 0 14px 38px rgba(0,0,0,0.22);
-        border-radius: 16px;
-        padding: 14px;
-        backdrop-filter: blur(6px);
-        box-sizing: border-box;
-        display: none;
-        flex-direction: column;
-        gap: 10px;
-        overflow-y: hidden !important;
-        overflow-x: hidden !important;
-    }
-    #groupCallOverlay .hdr {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        flex: 0 0 auto;
-        max-width: 100% !important;
-        overflow-x: hidden !important;
-    }
-    #groupCallOverlay .title { font-size: 16px; font-weight: 800; line-height: 1.1; }
-    #groupCallOverlay .sub { opacity: .7; font-size: 12px; margin-top: 2px; }
+        #groupCallOverlay .body {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            background: rgba(245,246,248,0.9);
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.08);
+            padding: 10px 12px 18px 12px;
+            box-sizing: border-box;
+            max-width: 100% !important;
+        }
+        #groupCallOverlay .emailText {
+            white-space: pre-wrap !important;
+            overflow-wrap: anywhere !important;
+            word-break: break-word !important;
+            overflow-x: hidden !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+            font-size: 13px !important;
+            line-height: 1.55 !important;
+        }
 
-    #groupCallOverlay .body {
-        flex: 1 1 auto;
-        min-height: 0;
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-        background: rgba(245,246,248,0.9);
-        border-radius: 12px;
-        border: 1px solid rgba(0,0,0,0.08);
-        padding: 10px 12px 18px 12px;
-        box-sizing: border-box;
-        max-width: 100% !important;
-    }
-    #groupCallOverlay .emailText {
-        white-space: pre-wrap !important;
-        overflow-wrap: anywhere !important;
-        word-break: break-word !important;
-        overflow-x: hidden !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
-        font-size: 13px !important;
-        line-height: 1.55 !important;
-    }
+        .overlayBtn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(21,101,192,0.25);
+            background: linear-gradient(135deg, #1565c0, #1976d2);
+            font-weight: 700;
+            font-size: 13px;
+            text-decoration: none;
+            color: white !important;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(21,101,192,0.3);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .overlayBtn:hover {
+            background: linear-gradient(135deg, #1976d2, #1e88e5);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(21,101,192,0.4);
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
-    .overlayBtn {
-        display: inline-block;
-        padding: 8px 12px;
-        border-radius: 10px;
-        border: 1px solid rgba(0,0,0,0.14);
-        background: rgba(255,255,255,0.92);
-        font-weight: 700;
-        text-decoration: none;
-        color: inherit;
-        white-space: nowrap;
-    }
-    .overlayBtn:hover { background: rgba(245,246,248,0.95); }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+    # ✅ overlay 維持既有：僅綁定「今年度明細表格」的勾選結果
+    if selected_row_key is not None and selected_row_key in df_filtered.index:
+        row = df_filtered.loc[selected_row_key]
+        sig = (selected_row_key, str(row.get("最終客戶", "")), str(row.get("商品名稱", "")), str(row.get("訂閱到期日", "")))
+        if st.session_state.get("last_selected_sig") != sig:
+            st.session_state["email_text"] = build_email_from_row(row)
+            st.session_state["last_selected_sig"] = sig
+        st.session_state["selected_row_key"] = selected_row_key
+    else:
+        st.session_state["selected_row_key"] = None
+        st.session_state["email_text"] = ""
+        st.session_state["last_selected_sig"] = None
 
-# ✅ overlay 維持既有：僅綁定「今年度明細表格」的勾選結果
-if selected_row_key is not None and selected_row_key in df_filtered.index:
-    row = df_filtered.loc[selected_row_key]
-    sig = (selected_row_key, str(row.get("最終客戶", "")), str(row.get("商品名稱", "")), str(row.get("訂閱到期日", "")))
-    if st.session_state.get("last_selected_sig") != sig:
-        st.session_state["email_text"] = build_email_from_row(row)
-        st.session_state["last_selected_sig"] = sig
-    st.session_state["selected_row_key"] = selected_row_key
-else:
-    st.session_state["selected_row_key"] = None
-    st.session_state["email_text"] = ""
-    st.session_state["last_selected_sig"] = None
+    email_text = st.session_state.get("email_text", "")
+    overlay_visible = st.session_state.get("selected_row_key") is not None and bool(email_text)
 
-email_text = st.session_state.get("email_text", "")
-overlay_visible = st.session_state.get("selected_row_key") is not None and bool(email_text)
+    group_email_text = st.session_state.get("group_email_text", "")
+    group_mailto_link = st.session_state.get("group_mailto_link", "")
+    group_overlay_visible = st.session_state.get("group_selected_sig") is not None and bool(group_email_text)
 
-group_email_text = st.session_state.get("group_email_text", "")
-group_mailto_link = st.session_state.get("group_mailto_link", "")
-group_overlay_visible = st.session_state.get("group_selected_sig") is not None and bool(group_email_text)
+    group_call_text = st.session_state.get("group_call_text", "")
+    group_call_overlay_visible = st.session_state.get("group_call_selected_sig") is not None and bool(group_call_text)
 
-group_call_text = st.session_state.get("group_call_text", "")
-group_call_overlay_visible = st.session_state.get("group_call_selected_sig") is not None and bool(group_call_text)
+    # ✅ 若 12-B 任一 Header 視窗顯示中，為避免多個右下視窗重疊：暫時隱藏 12) 明細 overlay（不改變既有勾選邏輯）
+    any_group_overlay_visible = group_overlay_visible or group_call_overlay_visible
+    effective_detail_overlay_visible = overlay_visible and (not any_group_overlay_visible)
 
-# ✅ 若 12-B 任一 Header 視窗顯示中，為避免多個右下視窗重疊：暫時隱藏 12) 明細 overlay（不改變既有勾選邏輯）
-any_group_overlay_visible = group_overlay_visible or group_call_overlay_visible
-effective_detail_overlay_visible = overlay_visible and (not any_group_overlay_visible)
-
-st.markdown(
-    f"""
-    <div id="emailOverlay" style="display:{'flex' if effective_detail_overlay_visible else 'none'};">
-        <div class="hdr">
-            <div>
-                <div class="title">✉️ 續約提醒與建議加購產品 Email 範例</div>
-                <div class="sub">（可直接複製貼上；取消勾選明細列即可關閉此視窗）</div>
+    st.markdown(
+        f"""
+        <div id="emailOverlay" style="display:{'flex' if effective_detail_overlay_visible else 'none'};">
+            <div class="hdr">
+                <div>
+                    <div class="title">✉️ 續約提醒與建議加購產品 Email 範例</div>
+                    <div class="sub">（可直接複製貼上；取消勾選明細列即可關閉此視窗）</div>
+                </div>
             </div>
+            <div class="body"><div class="emailText">{_html_escape(email_text)}</div></div>
         </div>
-        <div class="body"><div class="emailText">{_html_escape(email_text)}</div></div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+        """,
+        unsafe_allow_html=True,
+    )
 
-st.caption("✅ 勾選明細列＝顯示 Email；取消勾選＝關閉。")
+    st.caption("✅ 勾選明細列＝顯示 Email；取消勾選＝關閉。")
 
-# ---------------------------
-# ✅ 12-B) 分組 Header Email 視窗（右下、同 12) 格式、有 Y 軸捲軸、有 Email 按鈕）
-# ---------------------------
-st.markdown(
-    f"""
-    <div id="groupEmailOverlay" style="display:{'flex' if group_overlay_visible else 'none'};">
-        <div class="hdr">
-            <div>
-                <div class="title">✉️ 續約提醒與建議加購產品 Email 範例</div>
-                <div class="sub">（依 Header 彙整；可直接複製貼上；取消勾選 Header 即可關閉。收件人請於 Outlook 中填寫）</div>
+    # ---------------------------
+    # ✅ 12-B) 分組 Header Email 視窗（右下、同 12) 格式、有 Y 軸捲軸、有 Email 按鈕）
+    # ---------------------------
+    st.markdown(
+        f"""
+        <div id="groupEmailOverlay" style="display:{'flex' if group_overlay_visible else 'none'};">
+            <div class="hdr">
+                <div>
+                    <div class="title">✉️ 續約提醒與建議加購產品 Email 範例</div>
+                    <div class="sub">（依 Header 彙整；可直接複製貼上；取消勾選 Header 即可關閉。收件人請於 Outlook 中填寫）</div>
+                </div>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <a class="overlayBtn" href="{group_mailto_link}">Email</a>
+                </div>
             </div>
-            <div style="display:flex; gap:8px; align-items:center;">
-                <a class="overlayBtn" href="{group_mailto_link}">Email</a>
-            </div>
+            <div class="body"><div class="emailText">{_html_escape(group_email_text)}</div></div>
         </div>
-        <div class="body"><div class="emailText">{_html_escape(group_email_text)}</div></div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+        """,
+        unsafe_allow_html=True,
+    )
 
-# ---------------------------
-# ✅ 12-B) 分組 Header 電話訪談 視窗（新：右下、同 12) 格式、有 Y 軸捲軸）
-# ---------------------------
-st.markdown(
-    f"""
-    <div id="groupCallOverlay" style="display:{'flex' if group_call_overlay_visible else 'none'};">
-        <div class="hdr">
-            <div>
-                <div class="title">📞 電話訪談內容範例</div>
-                <div class="sub">（依 Header 彙整；可直接照念或複製改寫；取消勾選「電話訪談」即可關閉）</div>
+    # ---------------------------
+    # ✅ 12-B) 分組 Header 電話訪談 視窗（新：右下、同 12) 格式、有 Y 軸捲軸）
+    # ---------------------------
+    st.markdown(
+        f"""
+        <div id="groupCallOverlay" style="display:{'flex' if group_call_overlay_visible else 'none'};">
+            <div class="hdr">
+                <div>
+                    <div class="title">📞 電話訪談內容範例</div>
+                    <div class="sub">（依 Header 彙整；可直接照念或複製改寫；取消勾選「電話訪談」即可關閉）</div>
+                </div>
             </div>
+            <div class="body"><div class="emailText">{_html_escape(group_call_text)}</div></div>
         </div>
-        <div class="body"><div class="emailText">{_html_escape(group_call_text)}</div></div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+        """,
+        unsafe_allow_html=True,
+    )
+
+with tab_v2:
+    render_csp_dashboard_v2_architecture(df_filtered, df_filtered_next, ui_state)
